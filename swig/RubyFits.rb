@@ -176,7 +176,11 @@ class FitsHDU
 	  return getHeaders()
 	end
 	
+	def headerKeyValueComment(indexOrName)
+	  return header(indexOrName).keyValueComment
+	end
 end
+
 
 
 #============================================
@@ -204,6 +208,10 @@ class FitsHeaderRecord
 		else
 			self.assign(other)
 		end
+	end
+	
+	def keyValueComment
+	  return "#{keyword} = #{self.to_s} // #{comment}"
 	end
 end
 
