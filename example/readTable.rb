@@ -52,6 +52,12 @@ tableHDU.columns.each {|column|
 	puts column
 }
 puts "============================================"
-#for i in 0...256 do
-#puts f.hdu(1).getColumn(1).dvalue(i)
-#end
+puts
+
+
+puts "TableHDU access example2:"
+puts "============================================"
+tableHDU=f.getHDU("SPECTRUM")
+puts tableHDU["COUNTS"][100]
+puts tableHDU["COUNTS"][100...120].join(",")
+puts "============================================"
