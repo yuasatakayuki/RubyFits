@@ -1,3 +1,5 @@
+__NOTOC__
+
 == RubyFits ==
 A Ruby FITS I/O library based on C++ sfitsio.
 
