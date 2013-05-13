@@ -179,6 +179,28 @@ class FitsHDU
 	def headerKeyValueComment(indexOrName)
 	  return header(indexOrName).keyValueComment
 	end
+	
+	def assignHeader(keyword,value,comment="")
+	  if(header_index(keyword)<0)then
+	    header_append(keyword,value.to_s,comment)
+	  else
+	    header_assign(keyword,keyword,value.to_s,comment)
+	  end
+	end
+
+	alias addHeaderRecord assignHeader
+  alias addHeaderEntry assignHeader
+  alias addHeader assignHeader
+  alias appendHeader assignHeader
+  alias appendHeaderRecord assignHeader
+  alias appendHeaderEntry assignHeader
+  alias setHeader assignHeader
+  alias setHeaderRecord assignHeader
+  alias setHeaderEntry assignHeader
+  alias insertHeader assignHeader
+  alias insertHeaderEntry assignHeader
+  alias insertHeaderRecord assignHeader
+
 end
 
 

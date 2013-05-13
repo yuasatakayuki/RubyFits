@@ -1,7 +1,6 @@
 %rename(FitsHDU) fits_hdu;
 
 %alias fits_hdu::header "getHeaderRecord,getHeader,getHeaderEntry";
-%alias fits_hdu::header_assign "addHeaderRecord,addHeaderEntry,addHeader,appendHeader,appendHeaderRecord,appendHeaderEntry,setHeader,setHeaderRecord,setHeaderEntry,insertHeader,insertHeaderEntry,insertHeaderRecord";
 %alias fits_hdu::header_length "getHeaderLength,getHeaderSize,getNHeaderEntry,getHHeaders,nHeaders,nHeaderEntries,headerLength,headerSize";
 
 
@@ -21,12 +20,11 @@ public:
 		
 	/* Set/Add header record. */
     virtual fits_hdu &header_assign( const char *keyword0, 
-				     const fits_header_record &obj );
-    virtual fits_hdu &header_assign( const char *keyword0, 
 				     const char *keyword, const char *value, 
 				     const char *comment );
-    virtual fits_hdu &header_assign( const char *keyword0, 
-				const char *keyword, const char *description );
+
+    virtual fits_hdu &header_append( const char *keyword, const char *value, 
+				     const char *comment );
 
     /* erase some header records */
     virtual fits_hdu &header_erase_records( const char *keyword0, long num_records );
@@ -34,6 +32,7 @@ public:
     /* returns number of header records */
     virtual long header_length() const;
 
+    virtual long header_index( const char *keyword0 ) const;
 
 	//============================================
 	//HDU manipulation
