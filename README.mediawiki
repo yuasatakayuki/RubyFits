@@ -51,6 +51,12 @@ require "RubyFits"
 include Fits
 </pre>
 </li>
+<li>
+Define RUBYLIB to direct "$HOME/lib/ruby" in your .zshrc for example.
+<pre>
+export RUBYLIB=$HOME/lib/ruby
+</pre>
+</li>
 </ol>
 
 == Contact == 
