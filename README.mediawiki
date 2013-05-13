@@ -1,0 +1,145 @@
+== RubyFits ==
+A Ruby FITS I/O library based on C++ sfitsio.
+
+RubyFits is an easy-to-use Ruby library that can be used to manipulate
+files in the FITS format, the standard file format for astronomy and 
+astrophysics.
+
+The library uses [http://www.ir.isas.jaxa.jp/~cyamauch/sli/index.html#SFITSIO the C++ sfitsio library by Chisato Yamauchi]
+via [http://www.swig.org the SWIG interface generator].
+
+== Install ==
+To install this library, do the following:
+<ol>
+<li>
+RubyFits needs sllib and sfitsio to be installed.
+These libraries can be installed via Homebrew, and
+execute the following if you are missing these nice
+libraries.
+<pre>
+cd /usr/local/Library/Formula
+wget https://galaxy.astro.isas.jaxa.jp/~yuasa/documents/20130513/sllib.rb
+wget https://galaxy.astro.isas.jaxa.jp/~yuasa/documents/20130513/sfitsio.rb
+brew install sfitsio
+</pre>
+</li>
+<li>
+Clone (download) from github. 
+<pre>
+git clone https://github.com/yuasatakayuki/RubyFits.git
+</pre>
+</li>
+<li>
+Build with cmake.
+<pre>
+cd RubyFits/swig
+cmake .
+make install
+</pre>
+Compiled library will be installed to
+$HOME/lib/ruby. If you do not like this, modify install
+prefix with --DCMAKE_INSTALL_PREFIX like:
+<pre>
+cmake . --DCMAKE_INSTALL_PREFIX=/usr/local
+</pre>
+<li>
+In the ruby scritps, you can import RubyFits by doing like:
+<pre>
+require "RubyFits"
+include Fits
+</pre>
+</li>
+</ol>
+
+== Contact == 
+*Takayuki Yuasa - Japan Aerospace Exploration Agency (JAXA)
+** yuasa aaa astro.isas.jaxa.jp
+
+== Usage ==
+In the example/ folder, there are some scripts showing usages of RubyFits.
+"samplteTable.fits" can be used as a sample FITS file.
+
+*readTable.rb well describes how to read TableHDU in a FITS file.
+
+=== Open/Save ==
+See openSave.rb.
+<pre>
+require "RubyFits"
+include Fits
+
+f=FitsFile.new("sampleTable.fits")
+puts f
+puts f[0].headerKeyValueComment(1)
+</pre>
+
+You can open a file after constructing an empty instance first.
+<pre>
+f=FitsFile.new
+f.open("sampleTable.fits")
+</pre>
+
+Save.
+<pre>
+f.saveAs("modifiedSampleTable.fits")
+</pre>
+
+FitsFile::saveAs() has some aliases:
+*writeToFile
+*saveToFile
+*writeToFile
+*write
+*save
+*writeTo
+*saveTo
+
+=== Header access ===
+See openSave.rb.
+
+A FitsFile instance contains one or more HDU (header data unit, or
+sometimes called 'extension'). They can be accessed via one of the
+following accessors:
+<pre>
+f=FitsFile.new("sampleTable.fits")
+f.hdu(1)          # by index
+f[1]              # by index
+f.hdu("SPECTRUM") # by name
+</pre>
+
+An HDU contains Header and Data (table or image).
+Key-value records in a header can be accesses as follows:
+<pre>
+#dump the 1-st and 3-rd header key-value records
+puts f[1].headerKeyValueComment(1)
+puts f[1].headerKeyValueComment(3)
+puts f[1].headerKeyValueComment("TELESCOP")
+
+#dump some header key-value records
+puts f[1].header("TELESCOP")
+puts f[1].header("RA_PNT").to_f
+
+#retrieve header key-value record
+f[1].headers.each { |headerRecord|
+ puts headerRecord.keyword
+}
+</pre>
+
+FitsFile::header(indexOrKeyword) returns header record object
+(an instance of FitsHeaderRecord class).
+Values of header record objects can be obtained via usual cast
+methods such as to_s(), to_f(), to_i(), and so on.
+
+Header key-value record can be modified by assigning new value
+to the header record object.
+<pre>
+#modify header records
+f[1].header("TELESCOP")="ASTRO-H"
+</pre>
+Type of record can be automatically changed depending on the 
+assigned value.
+<pre>
+#modify header records
+f[1].header("TELESCOP")=3.141592
+</pre>
+
+
+
