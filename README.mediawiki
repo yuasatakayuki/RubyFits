@@ -5,7 +5,7 @@ RubyFits is an easy-to-use Ruby library that can be used to manipulate
 files in the FITS format, the standard file format for astronomy and 
 astrophysics.
 
-The library uses [http://www.ir.isas.jaxa.jp/~cyamauch/sli/index.html#SFITSIO the C++ sfitsio library by Chisato Yamauchi]
+The library uses [http://www.ir.isas.jaxa.jp/‾cyamauch/sli/index.html#SFITSIO the C++ sfitsio library by Chisato Yamauchi]
 via [http://www.swig.org the SWIG interface generator].
 
 == Install ==
@@ -18,8 +18,8 @@ execute the following if you are missing these nice
 libraries.
 <pre>
 cd /usr/local/Library/Formula
-wget https://galaxy.astro.isas.jaxa.jp/~yuasa/documents/20130513/sllib.rb
-wget https://galaxy.astro.isas.jaxa.jp/~yuasa/documents/20130513/sfitsio.rb
+wget https://galaxy.astro.isas.jaxa.jp/‾yuasa/documents/20130513/sllib.rb
+wget https://galaxy.astro.isas.jaxa.jp/‾yuasa/documents/20130513/sfitsio.rb
 brew install sfitsio
 </pre>
 </li>
@@ -61,7 +61,7 @@ In the example/ folder, there are some scripts showing usages of RubyFits.
 
 *readTable.rb well describes how to read TableHDU in a FITS file.
 
-=== Open/Save ==
+=== Open/Save ===
 See openSave.rb.
 <pre>
 require "RubyFits"
@@ -80,7 +80,13 @@ f.open("sampleTable.fits")
 
 Save.
 <pre>
-f.saveAs("modifiedSampleTable.fits")
+#save to file
+f.saveAs("openSave.fits")
+</pre>
+
+You can check the saved FITS file with fv for example ([http://heasarc.nasa.gov/lheasoft/ HEASOFT] should be installed):
+<pre>
+fv openSave.fits
 </pre>
 
 FitsFile::saveAs() has some aliases:
@@ -129,17 +135,122 @@ Values of header record objects can be obtained via usual cast
 methods such as to_s(), to_f(), to_i(), and so on.
 
 Header key-value record can be modified by assigning new value
-to the header record object.
+to the header record object. If no entry is found with a provided keyword,
+a new entry will be created with keyword and value (and comment if specified).
 <pre>
 #modify header records
-f[1].header("TELESCOP")="ASTRO-H"
+f[1].header("TELESCOP") << "ASTRO-H"
+f[1].setHeader("INSTRUME","SXS")
+f[1].addHeader("NEWKEY",3.14159, "COMMENT")
 </pre>
 Type of record can be automatically changed depending on the 
 assigned value.
 <pre>
-#modify header records
-f[1].header("TELESCOP")=3.141592
+#modify header record with comment
+f[1].header("TELESCOP") << [3.141592,"PI"]
 </pre>
 
 
+=== Read Table Contents ===
 
+FitsTableHDU consists of one or more FitsTableColumn objects
+which represent each column of the table.
+Data in a column can be accessed like ones contained in an array.
+
+See readTable.rb in the example/ folder.
+<pre>
+puts "TableHDU access example1:"
+puts "============================================"
+tableHDU=f.getHDU("SPECTRUM")
+puts "TableHDU #{tableHDU.getHDUName()} has #{tableHDU.nColumns()} columns and #{tableHDU.nRows} rows."
+tableHDU.columns.each {|column|
+  puts column
+}
+puts "============================================"
+<pre>
+
+This will result (with sampleTable.fits):
+<pre>
+> ruby readTable.rb
+
+... omitted ...
+
+TableHDU access example1:
+============================================
+TableHDU SPECTRUM has 2 columns and 256 rows.
+Column named "CHANNEL" = [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, ... (256 elements in total) ]
+Column named "COUNTS" = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ... (256 elements in total) ]
+============================================
+</pre>
+
+Another example is to use array accessor of
+FitsTableColumn. Index or range can be specified, e.g.
+<pre>
+puts "TableHDU access example3:"
+puts "============================================"
+tableHDU=f.getHDU("SPECTRUM")
+puts tableHDU["COUNTS"][100]
+puts tableHDU["COUNTS"][100...120].join(",")
+puts "============================================"
+</pre>
+The above means "retrieve data of 101th-120th entries from the 'COUNTS' column contained in the 'SPECTRUM' HDU".
+
+This will result:
+<pre>
+============================================
+115
+115,109,115,84,87,95,79,111,76,71,93,102,93,81,88,77,73,86,71,78
+============================================
+</pre>
+
+Length of TableHDU (i.e. number of entries or number of rows) can be
+retrieved via FitsTableColumn.length() or its aliases:
+*nEntries
+*nRows
+*getNEntries
+*getNRows
+
+=== Write Table Contents/Create New FITS File ===
+See createNewTable.fits.
+<pre>
+require "RubyFits"
+include Fits
+
+#create an empty column
+column=FitsTableColumn.new
+
+#set column name and format
+column.initializeWithNameAndFormat("COUNTS","1J")
+
+#set number of entries
+column.resize(128)
+
+#fill rows with (row number * 2).
+for i in 0...column.nRows
+	column[i]=i*2
+end
+
+#another example of filling rows
+column[1..3]=[10,11,12]
+
+#append the created column to a TableHDU
+tableHDU=FitsTableHDU.new
+tableHDU.resize(128)
+tableHDU.appendColumn(column)
+puts tableHDU
+
+#append the create TableHDU to a FitsFile
+f=FitsFile.new
+f.append tableHDU
+
+#Write to a file
+f.saveAs("createNewTable.fits")
+</pre>
+
+This will create a TableHDU with a column named "COUNTS" with a type of "1J" (i.e. 1 integer per row).
+Following the assignment, rows[1], row[2], and row[3] will have 10, 11, and 12, respectively.
+
+== Comment and Questions, misc ==
+Comments, suggestions, and questions are welcome. Please send them to yuasa aaa astro.isas.jaxa.jp.
+
+If you are interested in SpaceWire, see my another project "[https://galaxy.astro.isas.jaxa.jp/~yuasa/SpaceWire/ The open-source SpaceWire project]" and "[https://github.com/yuasatakayuki/SpaceWireRMAPLibrary SpaceWire RMAP Library].
