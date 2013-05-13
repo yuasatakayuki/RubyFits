@@ -20,8 +20,8 @@ execute the following if you are missing these nice
 libraries.
 <pre>
 cd /usr/local/Library/Formula
-wget https://galaxy.astro.isas.jaxa.jp/‾yuasa/documents/20130513/sllib.rb
-wget https://galaxy.astro.isas.jaxa.jp/‾yuasa/documents/20130513/sfitsio.rb
+wget --no-check-certificate https://galaxy.astro.isas.jaxa.jp/~yuasa/documents/20130513/sllib.rb
+wget --no-check-certificate https://galaxy.astro.isas.jaxa.jp/~yuasa/documents/20130513/sfitsio.rb
 brew install sfitsio
 </pre>
 </li>
