@@ -175,7 +175,7 @@ tableHDU.columns.each {|column|
   puts column
 }
 puts "============================================"
-<pre>
+</pre>
 
 This will result (with sampleTable.fits):
 <pre>
@@ -257,6 +257,71 @@ f.saveAs("createNewTable.fits")
 
 This will create a TableHDU with a column named "COUNTS" with a type of "1J" (i.e. 1 integer per row).
 Following the assignment, rows[1], row[2], and row[3] will have 10, 11, and 12, respectively.
+
+=== Reading an Image HDU ===
+FitsImageHDU handles access to ImageHDUs.
+
+In the following example (copied from readImage.rb in the example/ folder), pHDU is the PrimarHDU os the "sampleTable.fits" file and its type is Image HDU (Primary HDU should be always ImageHDU). Although this sample FITS file does not contain meaningful values in the Primary HDU image, we can retrieve some pieces of information such as width, height, and pixel values.
+<pre>
+require "RubyFits"
+include Fits
+f=FitsFile.new("sampleTable.fits")
+
+#Primary HDU
+pHDU=f.hdu(0)
+
+puts pHDU
+puts "Image type = #{pHDU.getTypeAsString()}"
+puts "Image size = #{pHDU.getXSize} x #{pHDU.getYSize}"
+puts "Pixel value:"
+puts " (1,2) = #{pHDU.getPixelValue(1,2)}"
+puts " (3,3) = #{pHDU.getPixelValue(3,3)}"
+puts " (15,2) = #{pHDU.getPixelValue(15,2)}"
+puts " (100,100) = #{pHDU.getPixelValue(100,100)} # <= this should be NaN because the pixel is outside the define size."
+
+croppedImage=pHDU.section(1,2)
+</pre>
+
+
+=== Creating an new Image HDU ===
+The example code copied from newImage.rb shows how to create a new ImageHDU. 
+
+'''Note:'''
+In the current version of RubyFits, users have to call FitsImageHDU::imageHDU.constructImage(x,y,z,type) to actually construct an image with buffer allocated not only new() which creates an empty instance.
+This restriction is due to some limitation of SWIG related to the %rename attribute, and might be resolved in the future releases.
+
+'''Type:''' type parameter should be one of the following values.
+*Fits::DOUBLE_T (64-bit double precision floating value)
+*Fits::FLOAT_T (32-bit single precision floating value)
+*Fits::LONG_T  (32-bit signed integer)
+*Fits::LONGLONG_T  (64-bit signed integer)
+*Fits::BYTE_T (8-bit signed integer)
+*Fits::SHORT_T (16-bit signed integer)
+
+<pre>
+require "RubyFits"
+include Fits
+
+#Create an image HDU whose size is 100x100, and has type of DOUBLE_T 
+
+puts Fits::DOUBLE_T
+imageHDU=FitsImageHDU.new
+imageHDU.constructImage(100,100,0,Fits::DOUBLE_T)
+puts imageHDU.getHDUName
+imageHDU.setHDUName("SampleImage")
+
+puts imageHDU
+puts "Image type = #{imageHDU.getTypeAsString()}"
+puts "Image size = #{imageHDU.getXSize} x #{imageHDU.getYSize}"
+puts "Setting a value to (50,50)"
+imageHDU.setDouble(3.14159,50,50)
+puts " (50,50) = #{imageHDU.getValue(50,50)}"
+
+f=FitsFile.new
+f.appendHDU(imageHDU)
+f.saveAs("newImage.fits")
+puts "Created image was saved to newImage.fits"
+</pre>
 
 == Comment and Questions, misc ==
 Comments, suggestions, and questions are welcome. Please send them to yuasa aaa astro.isas.jaxa.jp.
