@@ -23,7 +23,7 @@ using namespace sli;
 
 
 %include "fits_hdu.i"
-class fits_image:public fits_hdu{};
+%include "fits_image.i"
 %include "fits_table.i"
 %include "fits_table_col.i"
 %include "fits_header_record.i"
