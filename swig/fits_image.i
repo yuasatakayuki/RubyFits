@@ -32,6 +32,11 @@
 class fits_image: public fits_hdu {
 public:
 	//============================================
+	// Initializer
+	//============================================
+   virtual fits_image &init( int type, long naxis0 , long naxis1 , long naxis2);
+
+	//============================================
 	// Type
 	//============================================
 	virtual int type() const;

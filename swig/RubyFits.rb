@@ -185,6 +185,39 @@ module Fits
       end
     end
 
+    def getHDUName
+      return self.hduname
+    end
+
+    def setHDUName(name)
+      assign_hduname(name)
+    end
+
+    def getHeaderRecord(indexOrKey)
+      return header(indexOrKey)
+    end
+
+    def getHeaderLength
+      return header_length
+    end
+
+    def getHDUType
+      return hdutype
+    end
+
+    alias getHeader getHeaderRecord
+    alias getHeaderEntry getHeaderRecord
+    alias getHeaderSize getHeaderLength
+    alias getNHeaderEntries getHeaderLength
+    alias getHHeaders getHeaderLength
+    alias nHeaders getHeaderLength
+    alias nHeaderEntries getHeaderLength
+    alias headerLength getHeaderLength
+    alias headerSize getHeaderLength
+    alias hduType getHDUType
+    alias type getHDUType
+    alias getType getHDUType
+
     alias addHeaderRecord assignHeader
     alias addHeaderEntry assignHeader
     alias addHeader assignHeader
@@ -197,7 +230,10 @@ module Fits
     alias insertHeader assignHeader
     alias insertHeaderEntry assignHeader
     alias insertHeaderRecord assignHeader
-
+    alias setName setHDUName
+    alias getName getHDUName
+    alias hduName getHDUName
+    alias name getHDUName
   end
 
   #============================================
@@ -541,6 +577,10 @@ module Fits
   # FitsTableHDU class
   #============================================
   class FitsImageHDU
+    def constructImage(x,y,z,type)
+      init(type,x,y,z)
+    end
+
     def getValue(x,y,z=0)
       return getPixelValue(x,y,z)
     end
@@ -553,12 +593,12 @@ module Fits
           return getDoubleValue(x,y,z)
         end
       elsif(self.type()==Fits::FLOAT_T)then
-          if(self.nDimensions()==2)then
-            return getDoubleValue(x,y)
-          else
-            return getDoubleValue(x,y,z)
-          end
+        if(self.nDimensions()==2)then
+          return getDoubleValue(x,y)
         else
+          return getDoubleValue(x,y,z)
+        end
+      else
         if(self.nDimensions()==2)then
           return getIntegerValue(x,y)
         else
@@ -596,6 +636,8 @@ module Fits
       return "ASCII"
     when STRING_T
       return "String"
+    when DOUBLE_T
+      return "Double"
     when LONG_T
       return "Long"
     when LONGLONG_T

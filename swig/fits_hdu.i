@@ -1,12 +1,5 @@
 %rename(FitsHDU) fits_hdu;
 
-%alias fits_hdu::header "getHeaderRecord,getHeader,getHeaderEntry";
-%alias fits_hdu::header_length "getHeaderLength,getHeaderSize,getNHeaderEntry,getHHeaders,nHeaders,nHeaderEntries,headerLength,headerSize";
-
-
-%alias fits_hdu::hdutype "getHDUType,hduType,type,getType";
-%alias fits_hdu::hduname "getHDUName,getName,hduName,name";
-%alias fits_hdu::asign_hduname "setHDUName";
 
 class fits_hdu {
 public:
