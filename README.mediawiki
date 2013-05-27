@@ -35,7 +35,9 @@ git clone https://github.com/yuasatakayuki/RubyFits.git
 Build with cmake.
 <pre>
 cd RubyFits/swig
-cmake .
+mkdir build
+cd build
+cmake ..
 make install
 </pre>
 Compiled library will be installed to
