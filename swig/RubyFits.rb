@@ -166,6 +166,7 @@ module Fits
       for i in 0...(self.nHeaders)
         result << getHeader(i)
       end
+      abc = 1
       return result
     end
 
