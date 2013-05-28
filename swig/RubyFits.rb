@@ -367,6 +367,10 @@ module Fits
       end
     end
 
+    def each
+        self.getRowRange(0..(self.getNRows()-1)).each { |x| yield x } if block_given?
+    end
+
     def getRowAt(rowIndex)
       dataType=self.getDataType
       repeatLength=self.getRepeatLength()
