@@ -7,7 +7,7 @@ RubyFits is an easy-to-use Ruby library that can be used to manipulate
 files in the FITS format, the standard file format for astronomy and 
 astrophysics.
 
-The library uses [http://www.ir.isas.jaxa.jp/‾cyamauch/sli/index.html#SFITSIO the C++ sfitsio library by Chisato Yamauchi]
+The library uses [http://www.ir.isas.jaxa.jp/%7Ecyamauch/sli/index.html#SFITSIO the C++ sfitsio library by Chisato Yamauchi]
 via [http://www.swig.org the SWIG interface generator].
 
 == Install ==
@@ -20,8 +20,8 @@ execute the following if you are missing these nice
 libraries.
 <pre>
 cd /usr/local/Library/Formula
-wget --no-check-certificate https://galaxy.astro.isas.jaxa.jp/~yuasa/documents/20130513/sllib.rb
-wget --no-check-certificate https://galaxy.astro.isas.jaxa.jp/~yuasa/documents/20130513/sfitsio.rb
+wget --no-check-certificate https://galaxy.astro.isas.jaxa.jp/%7Eyuasa/documents/20130513/sllib.rb
+wget --no-check-certificate https://galaxy.astro.isas.jaxa.jp/%7Eyuasa/documents/20130513/sfitsio.rb
 brew install sfitsio
 </pre>
 </li>
@@ -328,4 +328,4 @@ puts "Created image was saved to newImage.fits"
 == Comment and Questions, misc ==
 Comments, suggestions, and questions are welcome. Please send them to yuasa aaa astro.isas.jaxa.jp.
 
-If you are interested in SpaceWire, see my another project "[https://galaxy.astro.isas.jaxa.jp/~yuasa/SpaceWire/ The open-source SpaceWire project]" and "[https://github.com/yuasatakayuki/SpaceWireRMAPLibrary SpaceWire RMAP Library].
+If you are interested in SpaceWire, see my another project "[https://galaxy.astro.isas.jaxa.jp/%7Eyuasa/SpaceWire/ The open-source SpaceWire project]" and "[https://github.com/yuasatakayuki/SpaceWireRMAPLibrary SpaceWire RMAP Library].
