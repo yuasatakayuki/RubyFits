@@ -497,7 +497,7 @@ module Fits
           result=self.assign_bit(value.to_i,rowIndex)
         else
           for repeatIndex in 0...repeatLength
-            result=self.assing_bit(value[repeatIndex].to_i,rowIndex,repeatIndex)
+            result=self.assign_bit(value[repeatIndex].to_i,rowIndex,repeatIndex)
           end
         end
       when FitsDataType::BYTE
@@ -505,7 +505,7 @@ module Fits
           result=self.assign_byte(value.to_i,rowIndex)
         else
           for repeatIndex in 0...repeatLength
-            result=self.assing_byte(value[repeatIndex].to_i,rowIndex,repeatIndex)
+            result=self.assign_byte(value[repeatIndex].to_i,rowIndex,repeatIndex,0)
           end
         end
       when FitsDataType::LOGICAL, FitsDataType::BOOLEAN
@@ -513,7 +513,7 @@ module Fits
           result=self.assign_logical( (value.to_i==1)? true:false ,rowIndex)
         else
           for repeatIndex in 0...repeatLength
-            result=self.assing_logical( value[repeatIndex].to_i==1? true:false ,rowIndex,repeatIndex)
+            result=self.assign_logical( value[repeatIndex].to_i==1? true:false ,rowIndex,repeatIndex)
           end
         end
       when FitsDataType::ASCII, FitsDataType::STRING
@@ -521,7 +521,7 @@ module Fits
           result=self.assign(value.to_s,rowIndex)
         else
           for repeatIndex in 0...repeatLength
-            result=self.assing(value.to_s,rowIndex,repeatIndex)
+            result=self.assign(value.to_s,rowIndex,repeatIndex)
           end
         end
       when FitsDataType::SHORT
@@ -529,7 +529,7 @@ module Fits
           result=self.assign_short(value.to_i,rowIndex)
         else
           for repeatIndex in 0...repeatLength
-            result=self.assing_short(value[repeatIndex].to_i,rowIndex,repeatIndex)
+            result=self.assign_short(value[repeatIndex].to_i,rowIndex,repeatIndex)
           end
         end
       when FitsDataType::LONG
@@ -537,7 +537,7 @@ module Fits
           result=self.assign(value.to_i,rowIndex)
         else
           for repeatIndex in 0...repeatLength
-            result=self.assing(value[repeatIndex].to_i,rowIndex,repeatIndex)
+            result=self.assign(value[repeatIndex].to_i,rowIndex,repeatIndex)
           end
         end
       when FitsDataType::LONGLONG
@@ -545,7 +545,7 @@ module Fits
           result=self.assign(value.to_i,rowIndex)
         else
           for repeatIndex in 0...repeatLength
-            result=self.assing(value[repeatIndex].to_i,rowIndex,repeatIndex)
+            result=self.assign(value[repeatIndex].to_i,rowIndex,repeatIndex)
           end
         end
       when FitsDataType::FLOATING
@@ -553,7 +553,7 @@ module Fits
           result=self.assign(value.to_f,rowIndex)
         else
           for repeatIndex in 0...repeatLength
-            result=self.assing(value[repeatIndex].to_f,rowIndex,repeatIndex)
+            result=self.assign(value[repeatIndex].to_f,rowIndex,repeatIndex)
           end
         end
       when FitsDataType::DOUBLE
@@ -561,7 +561,7 @@ module Fits
           result=self.assign(value.to_f,rowIndex)
         else
           for repeatIndex in 0...repeatLength
-            result=self.assing(value[repeatIndex].to_f,rowIndex,repeatIndex)
+            result=self.assign(value[repeatIndex].to_f,rowIndex,repeatIndex)
           end
         end
       end
