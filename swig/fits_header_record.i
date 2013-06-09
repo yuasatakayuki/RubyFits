@@ -8,7 +8,8 @@
 %alias fits_header_record::comment "getComment";
 
 %alias fits_header_record::keyword "getKeyword";
-
+%alias fits_header_record::type "getType";
+%alias fits_header_record::assign "setKeyValueComment"
 
 class fits_header_record {
 public:
