@@ -317,13 +317,13 @@ class FitsFile
 	#Returns an array of columns (FitsTableColumn).
     def getColumns()
     end
-	alias getColumn columns
+	alias getColumns columns
 
 	#Append a column to this table HDU.
-    def <<(column)
+    def append(column)
     end
-	alias << append
-	alias << appendColumn
+	alias append <<
+	alias appendColumn
 
 	#Returns a column at a specified index (0-start).
     def [](indexOrName)
