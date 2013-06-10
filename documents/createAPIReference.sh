@@ -2,8 +2,8 @@
 
 # 20130608 Takayuki Yuasa
 
-sub_convertAliasToDef.rb RubyFitsForAPIReference.rb > tmp.rb
-rdoc tmp.rb
+ruby sub_convertAliasToDef.rb RubyFitsForAPIReference.rb > RubyFits.rb
+rdoc RubyFits.rb
 
 cat << EOF
 Open doc/index.html to see the API Reference of RubyFits.
