@@ -447,11 +447,11 @@ module Fits
         end
       when FitsDataType::FLOATING
         if(repeatLength==1)then
-          return self.fvalue(rowIndex)
+          return self.dvalue(rowIndex)
         else
           result=[]
           for repeatIndex in 0...repeatLength
-            result << self.fvalue(rowIndex,repeatIndex)
+            result << self.dvalue(rowIndex,repeatIndex)
           end
           return result
         end
