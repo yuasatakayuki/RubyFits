@@ -366,6 +366,10 @@ module Fits
         STDERR.puts "FitsTableColumn::[] : invalid index or range argument."
       end
     end
+        
+    def each
+        self.getRowRange(0..(self.getNRows()-1)).each { |x| yield x } if block_given?
+    end
 
     def each
         self.getRowRange(0..(self.getNRows()-1)).each { |x| yield x } if block_given?
@@ -447,11 +451,11 @@ module Fits
         end
       when FitsDataType::FLOATING
         if(repeatLength==1)then
-          return self.fvalue(rowIndex)
+          return self.dvalue(rowIndex)
         else
           result=[]
           for repeatIndex in 0...repeatLength
-            result << self.fvalue(rowIndex,repeatIndex)
+            result << self.dvalue(rowIndex,repeatIndex)
           end
           return result
         end

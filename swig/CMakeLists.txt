@@ -51,11 +51,13 @@ message("-- Ruby library: ${RUBY_LIBRARY}")
 include_directories(
   ../include
   .
+  /Users/sakurai/work/homebrew/include
   ${RUBY_INCLUDE_DIRS}
 )
 
 link_directories(
   /usr/local/lib
+  /Users/sakurai/work/homebrew/lib
 )
 
 set(CMAKE_SWIG_FLAGS "")
