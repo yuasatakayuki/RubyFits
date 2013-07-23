@@ -208,6 +208,10 @@ public:
 
     /* returns length of variable length array at specified row */
     virtual long array_length( long row_idx, long elem_idx = 0 ) const;
+    
+	/* returns address offset for specified row in heap area */
+	virtual long array_heap_offset( long row_idx, long elem_idx = 0 ) const;
+
 };
 
 %extend fits_table_col {
