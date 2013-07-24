@@ -312,6 +312,14 @@ module Fits
 
       self.append_a_col(column)
     end
+    
+    def getColumnNames()
+      names=[]
+      for i in 0...(self.getNColumns) do
+        names << getColumnName(i)
+      end
+      return names
+    end
 
     def [](indexOrName)
       if(indexOrName.instance_of?(String) or indexOrName.instance_of?(Fixnum))then
