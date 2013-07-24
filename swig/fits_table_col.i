@@ -146,10 +146,6 @@ public:
     virtual fits_table_col &assign( double value, long row_index,
 			       long elem_index, long repetition_idx = 0 );
 
-    virtual fits_table_col &assign( float value, long row_index );
-    virtual fits_table_col &assign( float value, long row_index,
-			       long elem_index, long repetition_idx = 0 );
-
     virtual fits_table_col &assign( long long value, long row_index );
     virtual fits_table_col &assign( long long value, long row_index,
 			       long elem_index, long repetition_idx = 0 );
