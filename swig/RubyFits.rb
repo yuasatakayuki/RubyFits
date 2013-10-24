@@ -205,6 +205,10 @@ module Fits
       return hdutype
     end
 
+    def header(key)
+      return getHeader(key)
+    end
+
     alias getHeader getHeaderRecord
     alias getHeaderEntry getHeaderRecord
     alias getHeaderSize getHeaderLength
@@ -321,19 +325,33 @@ module Fits
       return names
     end
 
+    def row(index)
+      result=[]
+      for n in 0...self.nColumns
+        result << self.getColumn(n)[index]
+      end
+      return result
+    end
+
+    def each_row
+      for i in 0...(self[0].nRows)
+        yield self.row(i)
+      end
+    end
+
     def [](indexOrName)
       if(indexOrName.instance_of?(String) or indexOrName.instance_of?(Fixnum))then
         if(indexOrName.instance_of?(Fixnum) and indexOrName<0)then
-          STDERR.puts "FitsTableHDU::[] : It seems an invalid HDU index of #{indexOrName} was specified, and nil is returned."
+          STDERR.puts "FitsTableHDU::[] : It seems an invalid column index of #{indexOrName} was specified, and nil is returned."
           return nil
         end
         if(indexOrName.instance_of?(String) and getColumnIndex(indexOrName)<0)then
-          STDERR.puts "FitsTableHDU::[] : It seems an invalid HDU name of #{indexOrName} was specified, and nil is returned."
+          STDERR.puts "FitsTableHDU::[] : It seems an invalid column name of #{indexOrName} was specified, and nil is returned."
           return nil
         end
         return getColumn(indexOrName)
       else
-        STDERR.puts "FitsTableHDU::[] : It seems an invalid HDU index or name (#{indexOrName}) was specified, and nil is returned."
+        STDERR.puts "FitsTableHDU::[] : It seems an invalid column index or name (#{indexOrName}) was specified, and nil is returned."
         return nil
       end
     end
