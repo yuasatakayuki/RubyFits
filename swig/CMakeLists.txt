@@ -21,7 +21,7 @@ set(SWIG_IF_FILE ${TARGET_EXT_LIBRARY}.i)
 ### dependent libraries (SLLIB and SFITSIO)
 #### Install these libraries with Homebrew
 #### > brew install sfitsio sllib
-set(LIBSLLIB "libsllib") #this could be a dynamic link
+set(LIBSLLIB "sllib") #this could be a dynamic link
 set(LIBSFITSIO "libsfitsio.a")
 
 ### compile option (Debug) 
@@ -64,7 +64,7 @@ set_source_files_properties(${SWIG_IF_FILE} PROPERTIES CPLUSPLUS ON)
 # set_source_files_properties(${SWIG_IF_FILE} PROPERTIES SWIG_FLAGS "-includeall")
 # set_source_files_properties(${SWIG_IF_FILE} PROPERTIES SWIG_FLAGS "-minherit")
 set_source_files_properties(${SWIG_IF_FILE} PROPERTIES SWIG_FLAGS "-autorename")
-add_definitions(-DHAVE_STRUCT_TIMESPEC -DHAVE_SIGNBIT)
+add_definitions(-DHAVE_STRUCT_TIMESPEC -DHAVE_STRUCT_TIMEVAL -DHAVE_SIGNBIT)
 swig_add_module(${TARGET_EXT_LIBRARY} ruby ${SWIG_IF_FILE})
 swig_link_libraries(${TARGET_EXT_LIBRARY} ${RUBY_LIBRARY} ${LIBSLLIB} ${LIBSFITSIO} )
 
