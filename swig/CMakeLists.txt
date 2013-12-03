@@ -21,7 +21,7 @@ set(SWIG_IF_FILE ${TARGET_EXT_LIBRARY}.i)
 ### dependent libraries (SLLIB and SFITSIO)
 #### Install these libraries with Homebrew
 #### > brew install sfitsio sllib
-set(LIBSLLIB "libsllib") #this could be a dynamic link
+set(LIBSLLIB "sllib") #this could be a dynamic link
 set(LIBSFITSIO "libsfitsio.a")
 
 ### compile option (Debug) 
