@@ -205,10 +205,6 @@ module Fits
       return hdutype
     end
 
-    def header(key)
-      return getHeader(key)
-    end
-
     alias getHeader getHeaderRecord
     alias getHeaderEntry getHeaderRecord
     alias getHeaderSize getHeaderLength
@@ -273,9 +269,73 @@ module Fits
   end
 
   #============================================
+  # FitsTableColumnDefinition
+  #============================================
+  class FitsTableColumnDefinition
+
+    attr_accessor :ttype, :ttype_comment, :talas, :telem, :tunit, :tunit_comment
+    attr_accessor :tdisp, :tform, :tdim
+
+    def initialize(args={})
+      @ttype=""
+      @ttype_comment=""
+      @talas=""
+      @telem=""
+      @tunit=""
+      @tunit_comment=""
+      @tdisp=""
+      @tform=""
+      @tdim=""
+
+      @ttype= args[:ttype] unless args[:ttype]==nil
+      @ttype_comment= args[:ttype_comment] unless args[:ttype_comment]==nil
+      @talas=args[:talas] unless args[:talas]==nil
+      @telem=args[:telem] unless args[:telem]==nil
+      @tunit=args[:tunit] unless args[:tunit]=~nil
+      @tunit_comment=args[:tunit_comment] unless args[:tunit_comment]==nil
+      @tdisp=args[:tdisp] unless args[:tdisp]==nil
+      @tform=args[:tform] unless args[:tform]==nil
+      @tdim=args[:tdim] unless args[:tdim]==nil
+    end
+
+    def to_s()
+      str="TTYPE=\"#{@ttype}\" TFORM=\"#{@tform}\" TTYPE_COMMENT=\"#{@ttype_comment}\" TALAS=\"#{@talas}\" TELEM=\"#{@telem}\" TUNIT=\"#{@tunit}\" TUNIT_COMMENT=\"#{@tunit_comment}\" TDISP=\"#{@tdisp}\" TDIM=\"#{@tdim}\""
+      return str
+    end
+  end
+
+  #============================================
+  # FitsTableColumnDefinitions
+  #============================================
+  class FitsTableColumnDefinitions
+    attr_accessor :columnDefinitions
+
+    def initialize(args=[])
+      @columnDefinitions=[]
+      args.each(){ |e|
+        @columnDefinitions << FitsTableColumnDefinition.new(e)
+      }
+    end
+
+    def to_s()
+      lines=[]
+      @columnDefinitions.each(){|e|
+        lines << e.to_s()
+      }
+      return lines.join("\n")
+    end
+  end
+
+
+  #============================================
   # FitsTableHDU class
   #============================================
   class FitsTableHDU
+
+    # def createColumn(FitsTableColumnDefinition)
+    #   return initialize_column
+    # end
+
     def to_s
       result="FitsTableHDU #{getHDUName} nColumns=#{self.nColumns()} nRows=#{self.nRows()}"
     end
@@ -313,7 +373,7 @@ module Fits
         self.resize(column.getNEntries())
         STDERR.puts "FitsTableHDU::appendColumn(or <<) : Destination table was resized to have #{column.getNEntries()}."
       end
-
+      column.setParentTable(self)
       self.append_a_col(column)
     end
     
@@ -339,6 +399,8 @@ module Fits
       end
     end
 
+    alias each each_row
+    
     def [](indexOrName)
       if(indexOrName.instance_of?(String) or indexOrName.instance_of?(Fixnum))then
         if(indexOrName.instance_of?(Fixnum) and indexOrName<0)then
@@ -349,12 +411,15 @@ module Fits
           STDERR.puts "FitsTableHDU::[] : It seems an invalid column name of #{indexOrName} was specified, and nil is returned."
           return nil
         end
-        return getColumn(indexOrName)
+        column=getColumn(indexOrName)
+        column.setParentTable(self)
+        return column
       else
         STDERR.puts "FitsTableHDU::[] : It seems an invalid column index or name (#{indexOrName}) was specified, and nil is returned."
         return nil
       end
     end
+    
   end
 
   #============================================
@@ -362,6 +427,17 @@ module Fits
   #============================================
   class FitsTableColumn
     @@MaxDumpNumber=10
+
+    @parentTableHDU
+
+    def setParentTable(tableHDU)
+      @parentTableHDU=tableHDU
+    end
+
+    def getParentTableHDU()
+      return @parentTableHDU
+    end
+
     def to_s
       dumpSize=[self.getNEntries,@@MaxDumpNumber].min
       result="Column named \"#{self.getColumnName}\" = [ "
@@ -601,10 +677,31 @@ module Fits
       end
     end
 
+    def setVariableLengthArrayData(rowIndex,byteArray)
+      if(@vlaPreviousRowIndex==nil)then
+        @vlaPreviousRowIndex=0
+        @vlaHeapOffset=0
+      end
+      if(!self.heap_is_used())then
+        STDERR.puts "FitsTableColumn::setVariableLengthArrayData() : Variable Length Array access to non-VLA column (column=#{columnIndexOrName})."
+        return
+      end
+      if(@parentTableHDU==nil)then
+          STDERR.puts "FitsTableColumn::setVariableLengthArrayData() : This column does not have a parent TableHDU, and variable length array data cannot be written to heap."
+          return
+      end
+      if(@vlaPreviousRowIndex!=0 && rowIndex<@vlaPreviousRowIndex)then
+          STDERR.puts "FitsTableColumn::setVariableLengthArrayData() : Row index backword move was detected in variable length array. Output FITS file may not be valid." << std::endl;
+      end
+      assign_arrdesc( byteArray.length, @vlaHeapOffset, rowIndex, 0 )
+      @parentTableHDU.put_heap_vector(@vlaHeapOffset, byteArray)
+      @vlaHeapOffset+=byteArray.length
+      @vlaPreviousRowIndex=rowIndex
+    end
   end
 
   #============================================
-  # FitsTableHDU class
+  # FitsImageHDU class
   #============================================
   class FitsImageHDU
     def constructImage(x,y,z,type)
