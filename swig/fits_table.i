@@ -23,6 +23,11 @@
 %alias fits_table::insert_a_col "insertColumn,insert";
 %alias fits_table::erase_a_col "eraseColumn,erase";
 
+%alias fits_table::get_heap "getHeap";
+%alias fits_table::put_heap "putHeap";
+%alias fits_table::resize_heap "resizeHeap,setHeapSize";
+%alias fits_table::heap_length "heapLength,getHeapLength";
+
 class fits_table : public fits_hdu {
 public:
 
@@ -111,6 +116,30 @@ public:
     virtual fits_table &erase_a_col( long col_index );
     virtual fits_table &erase_a_col( const char *col_name );
 
+    /* low-level member functions for heap area                        */
+    /* Note that there are no guarantee of byte alignment in heap area */
+    /* and data in it are stored in big-endian.                        */
+
+    /* return address of heap area */
+    virtual void *heap_ptr();
+
+    /* obtain raw data of heap area */
+    /*   offset: byte offset        */
+    virtual ssize_t get_heap( void *dest_buf, size_t buf_size ) const;
+    virtual ssize_t get_heap( long offset, 
+                  void *dest_buf, size_t buf_size ) const;
+
+    /* set raw data of heap area */
+    /*   offset: byte offset     */
+    //virtual ssize_t put_heap( const void *src_buf, size_t buf_size );
+    virtual ssize_t put_heap( long offset, const void *src_buf, size_t buf_size );
+
+    /* change length of heap area */
+    virtual fits_table &resize_heap( size_t sz );
+
+    /* returns length of heap area */
+    virtual size_t heap_length();
+
 };
 
 %extend fits_table {
@@ -118,9 +147,16 @@ public:
 	fits_table &eraseColumn(long index0) {
 		return $self->erase_cols(index0,1);
 	}
+
 	fits_table &eraseColumn(const char *col_name) {
 		return $self->erase_cols(col_name,1);
 	}
+
+    size_t put_heap_vector( long offset, std::vector<uint8_t>& data ){
+        if(data.size()!=0){
+            $self->put_heap(offset, (const void*)&(data.at(0)), data.size());
+        }
+    }
 }
 
 //============================================

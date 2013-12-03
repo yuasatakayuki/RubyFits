@@ -208,6 +208,9 @@ public:
 	/* returns address offset for specified row in heap area */
 	virtual long array_heap_offset( long row_idx, long elem_idx = 0 ) const;
 
+    virtual fits_table_col &assign_arrdesc( long length, long offset,
+                       long row_index, long elem_idx = 0 );
+
 };
 
 %extend fits_table_col {
@@ -256,5 +259,6 @@ public:
 	FitsTableColumn();
 	FitsTableColumn(std::string ttype, std::string tform);
 	void initializeWithOptions(std::string ttype, std::string tform, std::map<std::string, std::string> options);
+
 };
 */
