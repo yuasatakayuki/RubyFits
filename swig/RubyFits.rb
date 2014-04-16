@@ -185,6 +185,10 @@ module Fits
       end
     end
 
+    def assignHeaderAsString(keyword,value,comment="")
+      header_assign_string(keyword,keyword,value.to_s,comment)
+    end
+
     def getHDUName
       return self.hduname
     end
@@ -227,6 +231,7 @@ module Fits
     alias setHeader assignHeader
     alias setHeaderRecord assignHeader
     alias setHeaderEntry assignHeader
+    alias setHeaderAsString assignHeaderAsString
     alias insertHeader assignHeader
     alias insertHeaderEntry assignHeader
     alias insertHeaderRecord assignHeader
