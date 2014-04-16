@@ -40,3 +40,14 @@ public:
 	virtual const char *hduname() const;
 	
 };
+
+%extend fits_hdu {
+public:
+	fits_hdu& header_assign_string(const char *keyword0, 
+				     const char *keyword, const char *value, 
+				     const char *comment ){
+				     $self->header(keyword0).assign(value);
+				     $self->header(keyword0).assign_comment(comment);
+				     return *($self);
+	}
+}
