@@ -42,9 +42,9 @@ make install
 </pre>
 Compiled library will be installed to
 $HOME/lib/ruby. If you do not like this, modify install
-prefix with --DCMAKE_INSTALL_PREFIX like:
+prefix with -DCMAKE_INSTALL_PREFIX like:
 <pre>
-cmake .. --DCMAKE_INSTALL_PREFIX=/usr/local
+cmake .. -DCMAKE_INSTALL_PREFIX=/usr/local
 </pre>
 <li>
 In the ruby scritps, you can import RubyFits by doing like:
