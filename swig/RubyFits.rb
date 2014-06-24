@@ -1,6 +1,7 @@
 require "fits"
 
 module Fits
+  public
   #============================================
   # functions
   #============================================
@@ -741,7 +742,17 @@ module Fits
 
     def getXPixels(y)
       result=[]
-      for x in 0...getXSize do
+      xSize=self.getXSize
+      for x in 0...xSize do
+        result << getPixelValue(x,y)
+      end
+      return result
+    end
+
+    def getYPixels(x)
+      result=[]
+      ySize=self.getYSize
+      for y in 0...ySize do
         result << getPixelValue(x,y)
       end
       return result
@@ -750,6 +761,15 @@ module Fits
     def getTypeAsString()
       return typeToString(self.type())
     end
+  end
+
+  def getAsArray()
+    result=[]
+    xSize=self.getXSize
+    for x in 0...xSize
+      result << getYPixels(x)
+    end
+    return result
   end
 
   def typeToString(type)
