@@ -57,9 +57,13 @@ module Fits
     def getHDU(hduIndexOrName)
       hduPointer=self.hdu_(hduIndexOrName)
       if(hduPointer.hdutype==2)then
-        table(hduIndexOrName)
+        if(hduIndexOrName.instance_of?(Fixnum))then
+          return table(hduIndexOrName.to_i)
+        else
+          return table("#{hduIndexOrName}")
+        end
       else
-        image(hduIndexOrName)
+        return image(hduIndexOrName)
       end
     end
 
