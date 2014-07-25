@@ -6,6 +6,8 @@
 %alias fitscc::extname "getExtensionName,extensionName,extName";
 %alias fitscc::assign_hduname "setHDUName";
 %alias fitscc::assign_extname "setExtensionName";
+%alias fitscc::read_template "readTemplate";
+%alias fitscc::read_template "constructFromTemplate";
 //%alias fitscc::hdu "getHDU";
 
 class fitscc{
@@ -21,6 +23,9 @@ public:
     /* files. (.gz or .bzip2)                                                */
     /* `path' arg can take string like "ftp://username:password@ftp.com/".   */
     ssize_t read_stream( const char *path );
+
+    /* read a FITS template and create an instance */
+    ssize_t read_template( int flags, const char *path );
     
     /* returns class level                                    */
     /* Class level is used when inherited classes are defined */
