@@ -151,11 +151,11 @@ module Fits
     end
     
     def appendHistory(str)
-    	appendHeaderRecord("HISTORY", str )
+    	header_append("HISTORY", str )
     end
 
     def appendComment(str)
-    	assign_comment(str)
+    	header_append("COMMENT", str )
     end
 
     def eraseHeaderRecord(key)
