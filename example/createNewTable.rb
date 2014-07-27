@@ -22,6 +22,8 @@ column[1..3]=[10,11,12]
 tableHDU=FitsTableHDU.new
 tableHDU.resize(128)
 tableHDU.appendColumn(column)
+tableHDU.appendComment("You can append COMMENT via FitsHDU.appendComment(str)")
+tableHDU.appendHistory("You can also append HISTORY via FitsHDU.appendHistory(str)")
 puts tableHDU
 
 #append the create TableHDU to a FitsFile
