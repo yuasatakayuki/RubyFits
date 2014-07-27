@@ -18,12 +18,12 @@ public:
     virtual fits_hdu &header_assign( const char *keyword0, 
 				     const char *keyword, const char *value, 
 				     const char *comment );
-
+				     
+	virtual fits_hdu &header_append( const char *keyword, const char *description );
+	
     virtual fits_hdu &header_append( const char *keyword, const char *value, 
 				     const char *comment );
 				     
-	virtual fits_header_record &assign_comment( const char *str );
-
     /* erase some header records */
     virtual fits_hdu &header_erase_records( const char *keyword0, long num_records );
 
