@@ -149,6 +149,14 @@ module Fits
     def appendHeaderRecord(key,value,comment="")
       appendHeaderRecord(FitsHeaderRecord.new(key,value,comment))
     end
+    
+    def appendHistory(str)
+    	appendHeaderRecord("HISTORY", str )
+    end
+
+    def appendComment(str)
+    	assign_comment(str)
+    end
 
     def eraseHeaderRecord(key)
       if(key.instance_of?(String))then
