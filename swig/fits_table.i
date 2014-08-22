@@ -1,5 +1,30 @@
 %rename(FitsTableHDU) fits_table;
 
+#ifdef SWIGRUBY
+%typemap (in) (std::vector <int16_t> &) (std::vector <int16_t> vec) {
+  Check_Type ($input, T_ARRAY);
+  int len = RARRAY_LEN ($input);
+  vec.reserve (len);
+  for (int i = 0; i < len; ++i) {
+    VALUE ro = rb_ary_entry ($input, i);
+    Check_Type (ro, T_FIXNUM);
+    vec.push_back (FIX2INT (ro));
+  }
+  $1 = &vec;
+}
+%typemap (in) (std::vector <float> &) (std::vector <float> vec) {
+  Check_Type ($input, T_ARRAY);
+  int len = RARRAY_LEN ($input);
+  vec.reserve (len);
+  for (int i = 0; i < len; ++i) {
+    VALUE ro = rb_ary_entry ($input, i);
+    Check_Type (ro, T_FLOAT);
+    vec.push_back (NUM2DBL(ro));
+  }
+  $1 = &vec;
+}
+#endif
+
 %alias fits_table::col_index "columnIndexOfName,indexOfColumnName,getIndexOfColumnName,getColumnIndex";
 %alias fits_table::col_name "columnNameOfIndex,nameOfColumnIndex,getNameOfColumnIndex,getColumnName";
 %alias fits_table::col_length "nColumns,getNColumns,getColumnLength,colmunLength";
@@ -157,6 +182,81 @@ public:
             $self->put_heap(offset, (const void*)&(data.at(0)), data.size());
         }
     }
+
+    size_t put_uint8_array_to_heap( long bytePosition, std::vector<uint8_t>& data ){
+        long size=(long)data.size();
+        if(size!=0){
+            $self->put_heap(bytePosition, (const void*)&(data.at(0)), size);
+            //adjust endian
+            $self->reverse_heap_endian(bytePosition, FITS::BYTE_T, (long)size);
+        }
+        return bytePosition+data.size()*sizeof(uint8_t);
+    }
+
+    size_t put_int16_array_to_heap( long bytePosition, std::vector<int16_t>& data ){
+        size_t size=data.size();
+        if(size!=0){
+            int16_t* bufferPointer;
+            mdarray_short buffer(false,&bufferPointer);
+            buffer.resize(data.size());
+            for(size_t i=0;i<data.size();i++){
+                bufferPointer[i]=data[i];
+            }
+            buffer.reverse_endian(false, 0, size);
+            $self->put_heap(bytePosition, buffer.data_ptr(), size*sizeof(int16_t));
+        }
+        return bytePosition+size*sizeof(int16_t);
+    }
+
+    size_t put_int32_array_to_heap( long bytePosition, std::vector<int32_t>& data ){
+        size_t size=data.size();
+        if(size!=0){
+            int32_t* bufferPointer;
+            mdarray_int32 buffer(false,&bufferPointer);
+            buffer.resize(data.size());
+            for(size_t i=0;i<data.size();i++){
+                bufferPointer[i]=data[i];
+            }
+            buffer.reverse_endian(false, 0, size);
+            $self->put_heap(bytePosition, buffer.data_ptr(), size*sizeof(int32_t));
+        }
+        return bytePosition+size*sizeof(int32_t);
+    }
+
+    size_t put_float_array_to_heap(long bytePosition, std::vector<float>& data){
+        using namespace std;
+        using namespace sli;
+        size_t size=data.size();
+        if(size!=0){
+            float *bufferPointer;
+            mdarray_float buffer(false,&bufferPointer);
+            buffer.resize(data.size());
+            for(size_t i=0;i<data.size();i++){
+                bufferPointer[i]=data[i];
+            }
+            buffer.reverse_endian(false, 0, size);
+            $self->put_heap(bytePosition, buffer.data_ptr(), size*sizeof(float));
+        }
+        return bytePosition+data.size()*sizeof(float);
+    }
+
+    size_t put_double_array_to_heap(long bytePosition, std::vector<double>& data){
+        using namespace std;
+        using namespace sli;
+        size_t size=data.size();
+        if(size!=0){
+            double *bufferPointer;
+            mdarray_double buffer(false,&bufferPointer);
+            buffer.resize(data.size());
+            for(size_t i=0;i<data.size();i++){
+                bufferPointer[i]=data[i];
+            }
+            buffer.reverse_endian(false, 0, size);
+            $self->put_heap(bytePosition, buffer.data_ptr(), size*sizeof(double));
+        }
+        return bytePosition+data.size()*sizeof(double);
+    }
+
 }
 
 //============================================

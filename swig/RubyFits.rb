@@ -27,6 +27,45 @@ module Fits
     DOUBLECOMPLEX = 77 #'M'
     LONGARRDESC = 80   #'P'
     LLONGARRDESC = 81  #'Q'
+
+    def self.toString(dataType)
+      case dataType
+        when ANY
+          return "ANY"
+        when BIT
+          return "BIT"
+        when BYTE
+          return "BYTE"
+        when LOGICAL
+          return "LOGICAL"
+        when BOOLEAN
+          return "BOOLEAN"
+        when ASCII
+          return "ASCII"
+        when STRING
+          return "STRING"
+        when SHORT
+          return "SHORT"
+        when LONG
+          return "LONG"
+        when LONGLONG
+          return "LONGLONG"
+        when FLOATING
+          return "FLOATING"
+        when DOUBLE
+          return "DOUBLE"
+        when COMPLEX
+          return "COMPLEX"
+        when DOUBLECOMPLEX
+          return "DOUBLECOMPLEX"
+        when LONGARRDESC
+          return "LONGARRDESC"
+        when LLONGARRDESC
+          return "LLONGARRDESC"
+        else
+          return "undefined"
+      end
+    end
   end
 
   #============================================
@@ -349,10 +388,67 @@ module Fits
   # FitsTableHDU class
   #============================================
   class FitsTableHDU
+    @@DefaultHeapSize=100*1024
+    @@ByteSizeOfDouble=8
 
-    # def createColumn(FitsTableColumnDefinition)
-    #   return initialize_column
-    # end
+    def initialize
+      @heapBytePosition=0
+      @heapSize=0
+    end
+
+    def doubleHeap
+      self.resizeHeap(@heapSize*2)
+      @heapSize=@heapSize*2
+      STDERR.puts "FitsTableHDU: heap size changed to #{@heapSize} bytes"
+    end
+
+    def allocateDefaultHeapSize()
+      self.resizeHeap(@@DefaultHeapSize)
+      @heapSize=@@DefaultHeapSize
+    end
+
+    def fillVariableLengthArrayColumn(columnNameOrIndex, rowIndex, arrayOfData)
+      if(@heapBytePosition==nil)then
+        @heapBytePosition=0
+        allocateDefaultHeapSize()
+      end
+
+      if(@heapSize==nil)then
+        allocateDefaultHeapSize()
+      end
+
+      column=self.column(columnNameOrIndex)
+      if(column.isVariableLengthArray)then
+        #resize heap if necessary
+        if(@heapBytePosition+arrayOfData.length*@@ByteSizeOfDouble>@heapSize)then
+          self.doubleHeap()
+        end
+
+        #array descriptor
+        column.assign_arrdesc(arrayOfData.length, @heapBytePosition, rowIndex);
+
+        #switch depending on column data type
+        dataType=column.getDataTypeOfVariableLengthArray
+        case dataType
+        when FitsDataType::BYTE
+          @heapBytePosition=self.put_uint_8_array_to_heap(@heapBytePosition, arrayOfData)
+        when FitsDataType::SHORT
+          @heapBytePosition=self.put_int_16_array_to_heap(@heapBytePosition, arrayOfData)
+        when FitsDataType::LONG
+          @heapBytePosition=self.put_int_32_array_to_heap(@heapBytePosition, arrayOfData)
+        when FitsDataType::FLOATING
+          @heapBytePosition=self.put_float_array_to_heap(@heapBytePosition, arrayOfData)
+        when FitsDataType::DOUBLE
+          @heapBytePosition=self.put_double_array_to_heap(@heapBytePosition, arrayOfData)
+        else
+          STDERR.puts "FitsTableHDU.fillVariableLengthArrayColumn(): unsupported column data type #{FitsDataType.toString(dataType)}"
+          exit
+        end
+      else
+        STDERR.puts "FitsTableHDU.fillVariableLengthArrayColumn(): column #{columnNameOrIndex} is not a variable-length-array column"
+        exit
+      end
+    end
 
     def to_s
       result="FitsTableHDU #{getHDUName} nColumns=#{self.nColumns()} nRows=#{self.nRows()}"
