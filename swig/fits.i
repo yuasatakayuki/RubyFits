@@ -8,25 +8,22 @@
 #include "sli/fits_table.h"
 #include "FitsFile.h"
 using namespace sli;
+
+#include "ruby.h"
+#include "ruby/intern.h"
+extern "C" { VALUE rb_ary_new_capa(long capa); }
+
 %}
-
-
-%typemap (in) (std::vector <uint8_t> &) (std::vector <uint8_t> vec) {
-  Check_Type ($input, T_ARRAY);
-  int len = RARRAY_LEN ($input);
-  vec.reserve (len);
-  for (int i = 0; i < len; ++i) {
-    VALUE ro = rb_ary_entry ($input, i);
-    Check_Type (ro, T_FIXNUM);
-    vec.push_back (FIX2UINT (ro));
-  }
-  $1 = &vec;
-}
-
 
 %include "std_string.i"
 %include "std_vector.i"
 %include "exception.i"
+
+/*
+namespace std{
+    %template(VectorFloat) vector< float >;
+}
+*/
 
 #include "sli/fits.h"
 #include "sli/fitscc.h"
