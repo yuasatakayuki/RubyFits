@@ -407,7 +407,49 @@ module Fits
       @heapSize=@@DefaultHeapSize
     end
 
-    def fillVariableLengthArrayColumn(columnNameOrIndex, rowIndex, arrayOfData)
+    def readVariableLengthArrayColumn(columnNameOrIndexOrColumn, rowIndex)
+      #get column
+      column=nil
+      if(columnNameOrIndexOrColumn.instance_of?(FitsTableColumn))then
+        column=columnNameOrIndexOrColumn
+      else
+        column=self[columnNameOrIndexOrColumn]
+        if(column==nil)then
+          STDERR.puts "FitsTableHDU::readVariableLengthArrayColumn() invalid column name or index #{columnNameOrIndexOrColumn}"
+          exit
+        end
+      end
+
+      #check if this HDU has heap allocated for VLA columns
+      if(!column.isVariableLengthArray)then
+        STDERR.puts "FitsTableHDU::readVariableLengthArrayColumn() column #{column.getColumnName} is not a variable-length array"
+        exit
+      end
+
+      #read length
+      arrayLength=column.array_length(rowIndex)
+      heapBytePosition=column.array_heap_offset(rowIndex)
+
+      #determine column type, and return data
+      dataType=column.getDataTypeOfVariableLengthArray
+      case dataType
+      when FitsDataType::BYTE
+        return self.read_uint_8_array_from_heap(heapBytePosition, arrayLength)
+      when FitsDataType::SHORT
+        return self.read_int_16_array_from_heap(heapBytePosition, arrayLength)
+      when FitsDataType::LONG
+        return self.read_int_32_array_from_heap(heapBytePosition, arrayLength)
+      when FitsDataType::FLOATING
+        return self.read_float_array_from_heap(heapBytePosition, arrayLength)
+      when FitsDataType::DOUBLE
+        return self.read_double_array_from_heap(heapBytePosition, arrayLength)
+      else
+        STDERR.puts "FitsTableHDU::readVariableLengthArrayColumn(): unsupported column data type #{FitsDataType.toString(dataType)}"
+        exit
+      end
+    end
+
+    def fillVariableLengthArrayColumn(columnNameOrIndexOrColumn, rowIndex, arrayOfData)
       if(@heapBytePosition==nil)then
         @heapBytePosition=0
         allocateDefaultHeapSize()
@@ -417,7 +459,16 @@ module Fits
         allocateDefaultHeapSize()
       end
 
-      column=self.column(columnNameOrIndex)
+      if(columnNameOrIndexOrColumn.instance_of?(FitsTableColumn))then
+        column=columnNameOrIndexOrColumn
+      else
+        column=self[columnNameOrIndexOrColumn]
+        if(column==nil)then
+          STDERR.puts "FitsTableHDU::fillVariableLengthArrayColumn() invalid column name or index #{columnNameOrIndexOrColumn}"
+          exit
+        end
+      end
+      
       if(column.isVariableLengthArray)then
         #resize heap if necessary
         if(@heapBytePosition+arrayOfData.length*@@ByteSizeOfDouble>@heapSize)then
@@ -515,6 +566,14 @@ module Fits
 
     alias each each_row
     
+    def getColumn(indexOrName)
+      column=self.col(indexOrName)
+      column.setParentTable(self)
+      return column
+    end
+
+    alias column getColumn
+
     def [](indexOrName)
       if(indexOrName.instance_of?(String) or indexOrName.instance_of?(Fixnum))then
         if(indexOrName.instance_of?(Fixnum) and indexOrName<0)then
@@ -525,9 +584,7 @@ module Fits
           STDERR.puts "FitsTableHDU::[] : It seems an invalid column name of #{indexOrName} was specified, and nil is returned."
           return nil
         end
-        column=getColumn(indexOrName)
-        column.setParentTable(self)
-        return column
+        return getColumn(indexOrName)
       else
         STDERR.puts "FitsTableHDU::[] : It seems an invalid column index or name (#{indexOrName}) was specified, and nil is returned."
         return nil
@@ -588,98 +645,104 @@ module Fits
     end
 
     def getRowAt(rowIndex)
-      dataType=self.getDataType
-      repeatLength=self.getRepeatLength()
-      case dataType
-      when FitsDataType::BIT
-        if(repeatLength==1)then
-          return self.bit_value(rowIndex)
-        else
-          result=[]
-          for repeatIndex in 0...repeatLength
-            result << self.bit_value(rowIndex,repeatIndex)
+      #check if this column is a VLA
+      if(self.isVariableLengthArray)then
+        return @parentTableHDU.readVariableLengthArrayColumn(self, rowIndex)
+      else
+        #if this column is not a VLA column
+        dataType=self.getDataType
+        repeatLength=self.getRepeatLength()
+        case dataType
+        when FitsDataType::BIT
+          if(repeatLength==1)then
+            return self.bit_value(rowIndex)
+          else
+            result=[]
+            for repeatIndex in 0...repeatLength
+              result << self.bit_value(rowIndex,repeatIndex)
+            end
+            return result
           end
-          return result
-        end
-      when FitsDataType::BYTE
-        if(repeatLength==1)then
-          return self.byte_value(rowIndex)
-        else
-          result=[]
-          for repeatIndex in 0...repeatLength
-            result << self.byte_value(rowIndex,repeatIndex)
+        when FitsDataType::BYTE
+          if(repeatLength==1)then
+            return self.byte_value(rowIndex)
+          else
+            result=[]
+            for repeatIndex in 0...repeatLength
+              result << self.byte_value(rowIndex,repeatIndex)
+            end
+            return result
           end
-          return result
-        end
-      when FitsDataType::LOGICAL, FitsDataType::BOOLEAN
-        if(repeatLength==1)then
-          return (self.logical_value(rowIndex) == 1)? true:false;
-        else
-          result=[]
-          for repeatIndex in 0...repeatLength
-            result << ( (self.logical_value(rowIndex,repeatIndex)==1)? true:false );
+        when FitsDataType::LOGICAL, FitsDataType::BOOLEAN
+          if(repeatLength==1)then
+            return (self.logical_value(rowIndex) == 1)? true:false;
+          else
+            result=[]
+            for repeatIndex in 0...repeatLength
+              result << ( (self.logical_value(rowIndex,repeatIndex)==1)? true:false );
+            end
+            return result
           end
-          return result
-        end
-      when FitsDataType::ASCII, FitsDataType::STRING
-        if(repeatLength==1)then
-          return self.svalue(rowIndex)
-        else
-          result=[]
-          for repeatIndex in 0...repeatLength
-            result << self.svalue(rowIndex,repeatIndex)
+        when FitsDataType::ASCII, FitsDataType::STRING
+          if(repeatLength==1)then
+            return self.svalue(rowIndex)
+          else
+            result=[]
+            for repeatIndex in 0...repeatLength
+              result << self.svalue(rowIndex,repeatIndex)
+            end
+            return result
           end
-          return result
-        end
-      when FitsDataType::SHORT
-        if(repeatLength==1)then
-          return self.svalue(rowIndex)
-        else
-          result=[]
-          for repeatIndex in 0...repeatLength
-            result << self.svalue(rowIndex,repeatIndex)
+        when FitsDataType::SHORT
+          if(repeatLength==1)then
+            return self.svalue(rowIndex)
+          else
+            result=[]
+            for repeatIndex in 0...repeatLength
+              result << self.svalue(rowIndex,repeatIndex)
+            end
+            return result
           end
-          return result
-        end
-      when FitsDataType::LONG
-        if(repeatLength==1)then
-          return self.lvalue(rowIndex)
-        else
-          result=[]
-          for repeatIndex in 0...repeatLength
-            result << self.lvalue(rowIndex,repeatIndex)
+        when FitsDataType::LONG
+          if(repeatLength==1)then
+            return self.lvalue(rowIndex)
+          else
+            result=[]
+            for repeatIndex in 0...repeatLength
+              result << self.lvalue(rowIndex,repeatIndex)
+            end
+            return result
           end
-          return result
-        end
-      when FitsDataType::LONGLONG
-        if(repeatLength==1)then
-          return self.llvalue(rowIndex)
-        else
-          result=[]
-          for repeatIndex in 0...repeatLength
-            result << self.llvalue(rowIndex,repeatIndex)
+        when FitsDataType::LONGLONG
+          if(repeatLength==1)then
+            return self.llvalue(rowIndex)
+          else
+            result=[]
+            for repeatIndex in 0...repeatLength
+              result << self.llvalue(rowIndex,repeatIndex)
+            end
+            return result
           end
-          return result
-        end
-      when FitsDataType::FLOATING
-        if(repeatLength==1)then
-          return self.dvalue(rowIndex)
-        else
-          result=[]
-          for repeatIndex in 0...repeatLength
-            result << self.dvalue(rowIndex,repeatIndex)
+        when FitsDataType::FLOATING
+          if(repeatLength==1)then
+            return self.dvalue(rowIndex)
+          else
+            result=[]
+            for repeatIndex in 0...repeatLength
+              result << self.dvalue(rowIndex,repeatIndex)
+            end
+            return result
           end
-          return result
-        end
-      when FitsDataType::DOUBLE
-        if(repeatLength==1)then
-          return self.dvalue(rowIndex)
-        else
-          result=[]
-          for repeatIndex in 0...repeatLength
-            result << self.dvalue(rowIndex,repeatIndex)
+        when FitsDataType::DOUBLE
+          if(repeatLength==1)then
+            return self.dvalue(rowIndex)
+          else
+            result=[]
+            for repeatIndex in 0...repeatLength
+              result << self.dvalue(rowIndex,repeatIndex)
+            end
+            return result
           end
-          return result
         end
       end
     end
@@ -704,80 +767,84 @@ module Fits
     end
 
     def assignSingleRow(rowIndex,value)
-      dataType=self.getDataType
-      repeatLength=self.getRepeatLength()
-      #do assignment
-      case dataType
-      when FitsDataType::BIT
-        if(repeatLength==1)then
-          result=self.assign_bit(value.to_i,rowIndex)
-        else
-          for repeatIndex in 0...repeatLength
-            result=self.assign_bit(value[repeatIndex].to_i,rowIndex,repeatIndex)
+      if(self.isVariableLengthArray())then #if VLA
+        return @parentTableHDU.fillVariableLengthArrayColumn(self, rowIndex, value)
+      else #if not VLA
+        dataType=self.getDataType
+        repeatLength=self.getRepeatLength()
+        #do assignment
+        case dataType
+        when FitsDataType::BIT
+          if(repeatLength==1)then
+            result=self.assign_bit(value.to_i,rowIndex)
+          else
+            for repeatIndex in 0...repeatLength
+              result=self.assign_bit(value[repeatIndex].to_i,rowIndex,repeatIndex)
+            end
           end
-        end
-      when FitsDataType::BYTE
-        if(repeatLength==1)then
-          result=self.assign_byte(value.to_i,rowIndex)
-        else
-          for repeatIndex in 0...repeatLength
-            result=self.assign_byte(value[repeatIndex].to_i,rowIndex,repeatIndex,0)
+        when FitsDataType::BYTE
+          if(repeatLength==1)then
+            result=self.assign_byte(value.to_i,rowIndex)
+          else
+            for repeatIndex in 0...repeatLength
+              result=self.assign_byte(value[repeatIndex].to_i,rowIndex,repeatIndex,0)
+            end
           end
-        end
-      when FitsDataType::LOGICAL, FitsDataType::BOOLEAN
-        if(repeatLength==1)then
-          result=self.assign_logical( (value.to_i==1)? true:false ,rowIndex)
-        else
-          for repeatIndex in 0...repeatLength
-            result=self.assign_logical( value[repeatIndex].to_i==1? true:false ,rowIndex,repeatIndex)
+        when FitsDataType::LOGICAL, FitsDataType::BOOLEAN
+          if(repeatLength==1)then
+            result=self.assign_logical( (value.to_i==1)? true:false ,rowIndex)
+          else
+            for repeatIndex in 0...repeatLength
+              result=self.assign_logical( value[repeatIndex].to_i==1? true:false ,rowIndex,repeatIndex)
+            end
           end
-        end
-      when FitsDataType::ASCII, FitsDataType::STRING
-        if(repeatLength==1)then
-          result=self.assign(value.to_s,rowIndex)
-        else
-          for repeatIndex in 0...repeatLength
-            result=self.assign(value.to_s,rowIndex,repeatIndex)
+        when FitsDataType::ASCII, FitsDataType::STRING
+          if(repeatLength==1)then
+            result=self.assign(value.to_s,rowIndex)
+          else
+            for repeatIndex in 0...repeatLength
+              result=self.assign(value.to_s,rowIndex,repeatIndex)
+            end
           end
-        end
-      when FitsDataType::SHORT
-        if(repeatLength==1)then
-          result=self.assign_short(value.to_i,rowIndex)
-        else
-          for repeatIndex in 0...repeatLength
-            result=self.assign_short(value[repeatIndex].to_i,rowIndex,repeatIndex)
+        when FitsDataType::SHORT
+          if(repeatLength==1)then
+            result=self.assign_short(value.to_i,rowIndex)
+          else
+            for repeatIndex in 0...repeatLength
+              result=self.assign_short(value[repeatIndex].to_i,rowIndex,repeatIndex)
+            end
           end
-        end
-      when FitsDataType::LONG
-        if(repeatLength==1)then
-          result=self.assign(value.to_i,rowIndex)
-        else
-          for repeatIndex in 0...repeatLength
-            result=self.assign(value[repeatIndex].to_i,rowIndex,repeatIndex)
+        when FitsDataType::LONG
+          if(repeatLength==1)then
+            result=self.assign(value.to_i,rowIndex)
+          else
+            for repeatIndex in 0...repeatLength
+              result=self.assign(value[repeatIndex].to_i,rowIndex,repeatIndex)
+            end
           end
-        end
-      when FitsDataType::LONGLONG
-        if(repeatLength==1)then
-          result=self.assign(value.to_i,rowIndex)
-        else
-          for repeatIndex in 0...repeatLength
-            result=self.assign(value[repeatIndex].to_i,rowIndex,repeatIndex)
+        when FitsDataType::LONGLONG
+          if(repeatLength==1)then
+            result=self.assign(value.to_i,rowIndex)
+          else
+            for repeatIndex in 0...repeatLength
+              result=self.assign(value[repeatIndex].to_i,rowIndex,repeatIndex)
+            end
           end
-        end
-      when FitsDataType::FLOATING
-        if(repeatLength==1)then
-          result=self.assign(value.to_f,rowIndex)
-        else
-          for repeatIndex in 0...repeatLength
-            result=self.assign(value[repeatIndex].to_f,rowIndex,repeatIndex)
+        when FitsDataType::FLOATING
+          if(repeatLength==1)then
+            result=self.assign(value.to_f,rowIndex)
+          else
+            for repeatIndex in 0...repeatLength
+              result=self.assign(value[repeatIndex].to_f,rowIndex,repeatIndex)
+            end
           end
-        end
-      when FitsDataType::DOUBLE
-        if(repeatLength==1)then
-          result=self.assign(value.to_f,rowIndex)
-        else
-          for repeatIndex in 0...repeatLength
-            result=self.assign(value[repeatIndex].to_f,rowIndex,repeatIndex)
+        when FitsDataType::DOUBLE
+          if(repeatLength==1)then
+            result=self.assign(value.to_f,rowIndex)
+          else
+            for repeatIndex in 0...repeatLength
+              result=self.assign(value[repeatIndex].to_f,rowIndex,repeatIndex)
+            end
           end
         end
       end
