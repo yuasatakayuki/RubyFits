@@ -1,7 +1,29 @@
 %rename(FitsTableHDU) fits_table;
 
 #ifdef SWIGRUBY
+%typemap (in) (std::vector <uint8_t> &) (std::vector <uint8_t> vec) {
+  Check_Type ($input, T_ARRAY);
+  int len = RARRAY_LEN ($input);
+  vec.reserve (len);
+  for (int i = 0; i < len; ++i) {
+    VALUE ro = rb_ary_entry ($input, i);
+    Check_Type (ro, T_FIXNUM);
+    vec.push_back (FIX2INT (ro));
+  }
+  $1 = &vec;
+}
 %typemap (in) (std::vector <int16_t> &) (std::vector <int16_t> vec) {
+  Check_Type ($input, T_ARRAY);
+  int len = RARRAY_LEN ($input);
+  vec.reserve (len);
+  for (int i = 0; i < len; ++i) {
+    VALUE ro = rb_ary_entry ($input, i);
+    Check_Type (ro, T_FIXNUM);
+    vec.push_back (FIX2INT (ro));
+  }
+  $1 = &vec;
+}
+%typemap (in) (std::vector <int32_t> &) (std::vector <int32_t> vec) {
   Check_Type ($input, T_ARRAY);
   int len = RARRAY_LEN ($input);
   vec.reserve (len);
@@ -23,14 +45,82 @@
   }
   $1 = &vec;
 }
+%typemap (in) (std::vector <double> &) (std::vector <double> vec) {
+  Check_Type ($input, T_ARRAY);
+  int len = RARRAY_LEN ($input);
+  vec.reserve (len);
+  for (int i = 0; i < len; ++i) {
+    VALUE ro = rb_ary_entry ($input, i);
+    Check_Type (ro, T_FLOAT);
+    vec.push_back (NUM2DBL(ro));
+  }
+  $1 = &vec;
+}
+/*
+%typemap(out) VALUE (std::vector<float> vec){
+  VALUE arr = rb_ary_new_capa(vec.size()); 
+  std::vector<float>::iterator i = vec.begin(), iend = vec.end();
+  for ( ; i!=iend; i++ ){
+    rb_ary_push(arr, DBL2NUM(*i));
+  }
+  $result = arr;
+}
+%typemap(ruby,out) VALUE (std::vector<float>& vec){
+  VALUE arr = rb_ary_new_capa(vec.size()); 
+  std::vector<float>::iterator i = vec.begin(), iend = vec.end();
+  for ( ; i!=iend; i++ ){
+    rb_ary_push(arr, DBL2NUM(*i));
+  }
+  $result = arr;
+}
+*/
+
 #endif
+
+/*
+%define VECTOR_TO_RUBY_ARRAY(vectorclassname, classname)
+%typemap(out) vectorclassname &, const vectorclassname & {
+  VALUE arr = rb_ary_new2($1->size()); 
+  vectorclassname::iterator i = $1->begin(), iend = $1->end();
+  for ( ; i!=iend; i++ )
+    rb_ary_push(arr, Data_Wrap_Struct(c ## classname.klass, 0, 0, &(*i)));
+  $result = arr;
+}
+%typemap(out) vectorclassname, const vectorclassname {
+  VALUE arr = rb_ary_new2($1.size()); 
+  vectorclassname::iterator i = $1.begin(), iend = $1.end();
+  for ( ; i!=iend; i++ )
+    rb_ary_push(arr, Data_Wrap_Struct(c ## classname.klass, 0, 0, &(*i)));
+  $result = arr;
+}
+%enddef
+
+VECTOR_TO_RUBY_ARRAY(std::vector<float>, Float)
+*/
+
+%typemap(out) std::vector<float>, const std::vector<float> {
+  VALUE arr = rb_ary_new_capa($1.size()); 
+  std::vector<float>::iterator i = $1.begin(), iend = $1.end();
+  for ( ; i!=iend; i++ )
+    rb_ary_push(arr, DBL2NUM(*i));
+  $result = arr;
+}
+%typemap(out) std::vector<float>&, const std::vector<float> & {
+  VALUE arr = rb_ary_capa($1.size()); 
+  std::vector<float>::iterator i = $1.begin(), iend = $1.end();
+  for ( ; i!=iend; i++ )
+    rb_ary_push(arr, DBL2NUM(*i));
+  $result = arr;
+}
+
+
+
 
 %alias fits_table::col_index "columnIndexOfName,indexOfColumnName,getIndexOfColumnName,getColumnIndex";
 %alias fits_table::col_name "columnNameOfIndex,nameOfColumnIndex,getNameOfColumnIndex,getColumnName";
 %alias fits_table::col_length "nColumns,getNColumns,getColumnLength,colmunLength";
 %alias fits_table::assign_col_name "setColumnName,changeColumnName";
 %alias fits_table::erase_cols "eraseColumns,eraseColumn";
-%alias fits_table::col "getColumn,column";
 %alias fits_table::row_length "nRows,getNRows,nEntries,getNEntries";
 
 %alias fits_table::resize_rows "resizeRows,resizeEntries,resize";
@@ -257,6 +347,87 @@ public:
         return bytePosition+data.size()*sizeof(double);
     }
 
+
+    std::vector<uint8_t> read_uint8_array_from_heap(long bytePosition, size_t length){
+        using namespace std;
+        using namespace sli;
+        std::vector<uint8_t> result(length);
+        
+        uint8_t *bufferPointer;
+        mdarray_uchar buffer(false,&bufferPointer);
+        buffer.resize(length);
+        $self->get_heap( bytePosition, (void*)bufferPointer, length*sizeof(uint8_t) );
+        
+        buffer.reverse_endian(false, 0, length);
+        for(size_t i=0;i<length;i++){
+            result[i]=buffer[i];
+        }
+        return result;
+    }
+    std::vector<int16_t> read_int16_array_from_heap(long bytePosition, size_t length){
+        using namespace std;
+        using namespace sli;
+        std::vector<int16_t> result(length);
+        
+        int16_t *bufferPointer;
+        mdarray_int16 buffer(false,&bufferPointer);
+        buffer.resize(length);
+        $self->get_heap( bytePosition, (void*)bufferPointer, length*sizeof(int16_t) );
+        
+        buffer.reverse_endian(false, 0, length);
+        for(size_t i=0;i<length;i++){
+            result[i]=buffer[i];
+        }
+        return result;
+    }
+    std::vector<int32_t> read_int32_array_from_heap(long bytePosition, size_t length){
+        using namespace std;
+        using namespace sli;
+        std::vector<int32_t> result(length);
+        
+        int32_t *bufferPointer;
+        mdarray_int32 buffer(false,&bufferPointer);
+        buffer.resize(length);
+        $self->get_heap( bytePosition, (void*)bufferPointer, length*sizeof(int32_t) );
+        
+        buffer.reverse_endian(false, 0, length);
+        for(size_t i=0;i<length;i++){
+            result[i]=buffer[i];
+        }
+        return result;
+    }
+    std::vector<float> read_float_array_from_heap(long bytePosition, size_t length){
+        using namespace std;
+        using namespace sli;
+        std::vector<float> result(length);
+        
+        float *bufferPointer;
+        mdarray_float buffer(false,&bufferPointer);
+        buffer.resize(length);
+        $self->get_heap( bytePosition, (void*)bufferPointer, length*sizeof(float) );
+        
+        buffer.reverse_endian(false, 0, length);
+        for(size_t i=0;i<length;i++){
+            result[i]=buffer[i];
+        }
+        return result;
+    }
+    std::vector<double> read_double_array_from_heap(long bytePosition, size_t length){
+        using namespace std;
+        using namespace sli;
+        std::vector<double> result(length);
+        
+        double *bufferPointer;
+        mdarray_double buffer(false,&bufferPointer);
+        buffer.resize(length);
+        $self->get_heap( bytePosition, (void*)bufferPointer, length*sizeof(double) );
+        
+        buffer.reverse_endian(false, 0, length);
+        for(size_t i=0;i<length;i++){
+            result[i]=buffer[i];
+        }
+        return result;
+    }
 }
 
 //============================================
