@@ -392,7 +392,7 @@ constructing HDUs and columns based on a template specified as "str".
 The following is the same code as contained in examples/createNewTableFromTemplate.rb, and
 shows how to construct a Binary Table HDU using a template string.
 
-For template syntax, see [[http://heasarc.gsfc.nasa.gov/fitsio/c/c_user/node105.html CFITSIO Users Guide "Template Files" section]].
+For template syntax, see [[http://heasarc.gsfc.nasa.gov/fitsio/c/c_user/node105.html|CFITSIO Users Guide "Template Files" section]].
 
 <pre>
 require "RubyFits"
