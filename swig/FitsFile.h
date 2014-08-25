@@ -20,4 +20,9 @@ public:
 	virtual sli::fits_hdu &hdu_(const char *extname) {
 		return this->hdu(extname);
 	}
+    static FitsFile* construct_from_template_string( std::string templateString ){
+    	FitsFile* result=new FitsFile;
+        result->template_load(0, templateString.c_str());
+        return result;
+    }
 };

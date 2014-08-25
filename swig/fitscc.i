@@ -138,6 +138,9 @@ public:
     /* same as assign_hduname() */
     virtual fitscc &assign_extname( long index, const char *extname );
 
+    /* */
+protected:
+    int template_load( int flags, const char *templ );
 };
 
 %extend fitscc {
@@ -145,6 +148,7 @@ public:
 	void writeToFile(const char* fileName){
 		$self->write_stream(fileName);
 	}
+
 }
 
 class FitsFile : public fitscc {
@@ -156,5 +160,6 @@ public:
     /* This can be used to access FITS header of any HDU types. */
     virtual fits_hdu &hdu_( long index );
     virtual fits_hdu &hdu_( const char *extname );
-	
+
+    static FitsFile* construct_from_template_string( std::string templateString );
 };
