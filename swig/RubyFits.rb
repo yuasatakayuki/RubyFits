@@ -72,6 +72,24 @@ module Fits
   # FitsFile class
   #============================================
   class FitsFile
+
+    def initialize()
+
+    end
+
+    def self.constructFromTemplateString(templateString)      
+      return construct_from_template_string(templateString)
+    end
+
+    def self.constructFromTemplateFile(templateFile)
+      if(!File.exist?(templateFile))then
+        STDERR.puts "FitsFile::constructFromTemplateFile() file not found"
+        exit
+      end
+      templateString=File.read(templateFile)
+      return construct_from_template_string(templateString)
+    end
+
     def to_s
       result="FitsFile # of HDUs = #{self.getNHDU()} [ "
       getHDUs.each() {|hdu|
@@ -468,7 +486,7 @@ module Fits
           exit
         end
       end
-      
+
       if(column.isVariableLengthArray)then
         #resize heap if necessary
         if(@heapBytePosition+arrayOfData.length*@@ByteSizeOfDouble>@heapSize)then
