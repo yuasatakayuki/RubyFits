@@ -73,10 +73,6 @@ module Fits
   #============================================
   class FitsFile
 
-    def initialize()
-
-    end
-
     def self.constructFromTemplateString(templateString)      
       return construct_from_template_string(templateString)
     end
