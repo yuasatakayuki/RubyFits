@@ -405,10 +405,12 @@ module Fits
     @@DefaultHeapSize=100*1024
     @@ByteSizeOfDouble=8
 
-    def initialize
-      @heapBytePosition=0
-      @heapSize=0
-    end
+    # Comment out to avoid the following error
+    # in `resize_rows': Expected argument 0 of type fits_table *, but got Fits::FitsTableHDU #<Fits::FitsTableHDU:0x007ff69... (ObjectPreviouslyDeleted)
+    #def initialize
+    #  @heapBytePosition=0
+    #  @heapSize=0
+    #end
 
     def doubleHeap
       self.resizeHeap(@heapSize*2)
