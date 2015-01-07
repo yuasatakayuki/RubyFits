@@ -37,8 +37,13 @@ include(${SWIG_USE_FILE})
 
 find_package(Ruby)
 set(RUBY_LINK_FLAGS " ")
+find_path(RUBY_CONFIG_FILE_DIR
+  NAMES ruby/config.h
+  PATHS ${RUBY_HDR_DIR}/*
+  NO_DEFAULT_PATH
+)
 if(${RUBY_VERSION} VERSION_GREATER 1.9.0)
-  set(RUBY_INCLUDE_DIRS ${RUBY_HDR_DIR})
+  set(RUBY_INCLUDE_DIRS ${RUBY_HDR_DIR} ${RUBY_CONFIG_FILE_DIR})
   set(RUBY_LIBRARY "")
   if(APPLE)
     set(RUBY_LINK_FLAGS "-Wl,-undefined,dynamic_lookup -Wl,-multiply_defined,suppress -Wl,-flat_namespace")
