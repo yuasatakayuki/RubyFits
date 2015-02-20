@@ -56,6 +56,162 @@
   }
   $1 = &vec;
 }
+
+/* C++ return value => Ruby conversion */
+
+%typemap(out) std::vector<uint8_t> {
+  VALUE arr = rb_ary_new_capa($1.size()); 
+  std::vector<uint8_t>::iterator i = $1.begin(), iend = $1.end();
+  for ( ; i!=iend; i++ ){
+    rb_ary_push(arr, INT2FIX(*i));
+  }
+  $result = arr;
+}
+%typemap(out) std::vector<uint8_t>&  {
+  VALUE arr = rb_ary_new_capa($1.size());
+  std::vector<uint8_t>::iterator i = $1.begin(), iend = $1.end();
+  for ( ; i!=iend; i++ ){
+    rb_ary_push(arr, INT2FIX(*i));
+  }
+  $result = arr;
+}
+
+%typemap(out) std::vector<int16_t> {
+  VALUE arr = rb_ary_new_capa($1.size()); 
+  std::vector<int16_t>::iterator i = $1.begin(), iend = $1.end();
+  for ( ; i!=iend; i++ ){
+    rb_ary_push(arr, INT2FIX(*i));
+  }
+  $result = arr;
+}
+%typemap(out) std::vector<int16_t>&  {
+  VALUE arr = rb_ary_new_capa($1.size());
+  std::vector<int16_t>::iterator i = $1.begin(), iend = $1.end();
+  for ( ; i!=iend; i++ ){
+    rb_ary_push(arr, INT2FIX(*i));
+  }
+  $result = arr;
+}
+
+%typemap(out) std::vector<uint16_t> {
+  VALUE arr = rb_ary_new_capa($1.size()); 
+  std::vector<uint16_t>::iterator i = $1.begin(), iend = $1.end();
+  for ( ; i!=iend; i++ ){
+    rb_ary_push(arr, INT2FIX(*i));
+  }
+  $result = arr;
+}
+%typemap(out) std::vector<uint16_t>&  {
+  VALUE arr = rb_ary_new_capa($1.size());
+  std::vector<uint16_t>::iterator i = $1.begin(), iend = $1.end();
+  for ( ; i!=iend; i++ ){
+    rb_ary_push(arr, INT2FIX(*i));
+  }
+  $result = arr;
+}
+
+%typemap(out) std::vector<int32_t> {
+  VALUE arr = rb_ary_new_capa($1.size()); 
+  std::vector<int32_t>::iterator i = $1.begin(), iend = $1.end();
+  for ( ; i!=iend; i++ ){
+    rb_ary_push(arr, INT2FIX(*i));
+  }
+  $result = arr;
+}
+%typemap(out) std::vector<int32_t>&  {
+  VALUE arr = rb_ary_new_capa($1.size());
+  std::vector<int32_t>::iterator i = $1.begin(), iend = $1.end();
+  for ( ; i!=iend; i++ ){
+    rb_ary_push(arr, INT2FIX(*i));
+  }
+  $result = arr;
+}
+
+%typemap(out) std::vector<uint32_t> {
+  VALUE arr = rb_ary_new_capa($1.size()); 
+  std::vector<uint32_t>::iterator i = $1.begin(), iend = $1.end();
+  for ( ; i!=iend; i++ ){
+    rb_ary_push(arr, INT2FIX(*i));
+  }
+  $result = arr;
+}
+%typemap(out) std::vector<uint32_t>&  {
+  VALUE arr = rb_ary_new_capa($1.size());
+  std::vector<uint32_t>::iterator i = $1.begin(), iend = $1.end();
+  for ( ; i!=iend; i++ ){
+    rb_ary_push(arr, INT2FIX(*i));
+  }
+  $result = arr;
+}
+
+%typemap(out) std::vector<int64_t> {
+  VALUE arr = rb_ary_new_capa($1.size()); 
+  std::vector<int64_t>::iterator i = $1.begin(), iend = $1.end();
+  for ( ; i!=iend; i++ ){
+    rb_ary_push(arr, INT2FIX(*i));
+  }
+  $result = arr;
+}
+%typemap(out) std::vector<int64_t>&  {
+  VALUE arr = rb_ary_new_capa($1.size());
+  std::vector<int64_t>::iterator i = $1.begin(), iend = $1.end();
+  for ( ; i!=iend; i++ ){
+    rb_ary_push(arr, INT2FIX(*i));
+  }
+  $result = arr;
+}
+
+%typemap(out) std::vector<uint64_t> {
+  VALUE arr = rb_ary_new_capa($1.size()); 
+  std::vector<uint64_t>::iterator i = $1.begin(), iend = $1.end();
+  for ( ; i!=iend; i++ ){
+    rb_ary_push(arr, INT2FIX(*i));
+  }
+  $result = arr;
+}
+%typemap(out) std::vector<uint64_t>&  {
+  VALUE arr = rb_ary_new_capa($1.size());
+  std::vector<uint64_t>::iterator i = $1.begin(), iend = $1.end();
+  for ( ; i!=iend; i++ ){
+    rb_ary_push(arr, INT2FIX(*i));
+  }
+  $result = arr;
+}
+
+%typemap(out) std::vector<float> {
+  VALUE arr = rb_ary_new_capa($1.size()); 
+  std::vector<float>::iterator i = $1.begin(), iend = $1.end();
+  for ( ; i!=iend; i++ ){
+    rb_ary_push(arr, DBL2NUM(*i));
+  }
+  $result = arr;
+}
+%typemap(out) std::vector<float>&  {
+  VALUE arr = rb_ary_new_capa($1.size());
+  std::vector<float>::iterator i = $1.begin(), iend = $1.end();
+  for ( ; i!=iend; i++ ){
+    rb_ary_push(arr, DBL2NUM(*i));
+  }
+  $result = arr;
+}
+
+%typemap(out) std::vector<double> {
+  VALUE arr = rb_ary_new_capa($1.size()); 
+  std::vector<double>::iterator i = $1.begin(), iend = $1.end();
+  for ( ; i!=iend; i++ ){
+    rb_ary_push(arr, DBL2NUM(*i));
+  }
+  $result = arr;
+}
+%typemap(out) std::vector<double>&  {
+  VALUE arr = rb_ary_new_capa($1.size());
+  std::vector<double>::iterator i = $1.begin(), iend = $1.end();
+  for ( ; i!=iend; i++ ){
+    rb_ary_push(arr, DBL2NUM(*i));
+  }
+  $result = arr;
+}
+
 /*
 %typemap(out) VALUE (std::vector<float> vec){
   VALUE arr = rb_ary_new_capa(vec.size()); 
@@ -77,7 +233,7 @@
 
 #endif
 
-/*
+
 %define VECTOR_TO_RUBY_ARRAY(vectorclassname, classname)
 %typemap(out) vectorclassname &, const vectorclassname & {
   VALUE arr = rb_ary_new2($1->size()); 
@@ -94,7 +250,7 @@
   $result = arr;
 }
 %enddef
-
+/*
 VECTOR_TO_RUBY_ARRAY(std::vector<float>, Float)
 */
 
