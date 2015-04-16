@@ -22,7 +22,27 @@ set(SWIG_IF_FILE ${TARGET_EXT_LIBRARY}.i)
 #### Install these libraries with Homebrew
 #### > brew install sfitsio sllib
 set(LIBSLLIB "sllib") #this could be a dynamic link
-set(LIBSFITSIO "libsfitsio.a")
+set(LIBSFITSIO "sfitsio")
+
+if(APPLE)
+  set(sharedlib_SUFFIX "dyld")
+  message("-- Share library suffix = ${sharedlib_SUFFIX}")
+else(APPLE)
+  set(sharedlib_SUFFIX "so")
+  message("-- Share library suffix = ${sharedlib_SUFFIX}")
+endif(APPLE)
+
+find_path(sllib_INC_DIR
+  NAMES sli/mdarray.h sli/slierr.h
+  PATHS /usr/local/include /usr/include $ENV{HOME}/.linuxbrew/include $ENV{HOME}/work/install/include )
+ 
+message("-- sllib include path: ${sllib_INC_DIR}")
+ 
+find_path(sllib_LIB_DIR
+  NAMES libsllib.${sharedlib_SUFFIX}
+  PATHS /usr/local/lib /usr/local/lib64 /usr/lib /usr/lib64 $ENV{HOME}/.linuxbrew/lib/* $ENV{HOME}/.linuxbrew/lib64/* $ENV{HOME}/work/install/lib/* $ENV{HOME}/work/install/lib64/* )
+ 
+message("-- sllib lib path: ${sllib_LIB_DIR}")
 
 ### compile option (Debug) 
 set(CMAKE_CXX_FLAGS_DEBUG "-W -g")
@@ -36,10 +56,13 @@ find_package(SWIG REQUIRED)
 include(${SWIG_USE_FILE})
 
 find_package(Ruby)
+
+message("-- RUBY_HDR_DIR = ${RUBY_HDR_DIR}")
+
 set(RUBY_LINK_FLAGS " ")
 find_path(RUBY_CONFIG_FILE_DIR
   NAMES ruby/config.h
-  PATHS ${RUBY_HDR_DIR}/*
+  PATHS ${RUBY_HDR_DIR}
   NO_DEFAULT_PATH
 )
 if(${RUBY_VERSION} VERSION_GREATER 1.9.0)
@@ -57,10 +80,12 @@ include_directories(
   ../include
   .
   ${RUBY_INCLUDE_DIRS}
+  ${sllib_INC_DIR}
 )
 
 link_directories(
   /usr/local/lib
+  ${sllib_LIB_DIR}
 )
 
 set(CMAKE_SWIG_FLAGS "")
