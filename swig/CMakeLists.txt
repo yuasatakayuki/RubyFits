@@ -39,7 +39,7 @@ find_path(sllib_INC_DIR
 message("-- sllib include path: ${sllib_INC_DIR}")
  
 find_path(sllib_LIB_DIR
-  NAMES libsllib.${sharedlib_SUFFIX}
+  NAMES libsllib.a
   PATHS /usr/local/lib /usr/local/lib64 /usr/lib /usr/lib64 $ENV{HOME}/.linuxbrew/lib/* $ENV{HOME}/.linuxbrew/lib64/* $ENV{HOME}/work/install/lib/* $ENV{HOME}/work/install/lib64/* )
  
 message("-- sllib lib path: ${sllib_LIB_DIR}")
@@ -62,7 +62,7 @@ message("-- RUBY_HDR_DIR = ${RUBY_HDR_DIR}")
 set(RUBY_LINK_FLAGS " ")
 find_path(RUBY_CONFIG_FILE_DIR
   NAMES ruby/config.h
-  PATHS ${RUBY_HDR_DIR}
+  PATHS ${RUBY_HDR_DIR}/*
   NO_DEFAULT_PATH
 )
 if(${RUBY_VERSION} VERSION_GREATER 1.9.0)
