@@ -24,6 +24,8 @@ namespace std{
     %template(VectorFloat) vector< float >;
 }
 */
+%template(DoubleVector) std::vector< double >;
+
 
 #include "sli/fits.h"
 #include "sli/fitscc.h"
