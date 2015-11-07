@@ -464,6 +464,8 @@ module Fits
         exit
       end
     end
+    
+    alias readVLA readVariableLengthArrayColumn
 
     def fillVariableLengthArrayColumn(columnNameOrIndexOrColumn, rowIndex, arrayOfData)
       if(@heapBytePosition==nil)then
@@ -516,6 +518,9 @@ module Fits
         exit
       end
     end
+
+    alias fillVLA fillVariableLengthArrayColumn
+    alias writeVLA fillVariableLengthArrayColumn
 
     def to_s
       result="FitsTableHDU #{getHDUName} nColumns=#{self.nColumns()} nRows=#{self.nRows()}"
