@@ -39,7 +39,7 @@ find_path(sllib_INC_DIR
 message("-- sllib include path: ${sllib_INC_DIR}")
  
 find_path(sllib_LIB_DIR
-  NAMES libsllib.a
+  NAMES libsllib.${sharedlib_SUFFIX} libsllib.dylib
   PATHS /usr/local/lib /usr/local/lib64 /usr/lib /usr/lib64 $ENV{HOME}/.linuxbrew/lib/* $ENV{HOME}/.linuxbrew/lib64/* $ENV{HOME}/work/install/lib/* $ENV{HOME}/work/install/lib64/* )
  
 message("-- sllib lib path: ${sllib_LIB_DIR}")
