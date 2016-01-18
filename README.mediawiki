@@ -14,14 +14,12 @@ via [http://www.swig.org the SWIG interface generator].
 To install this library, do the following:
 <ol>
 <li>
-RubyFits needs sllib and sfitsio to be installed.
+RubyFits needs [http://www.ir.isas.jaxa.jp/~cyamauch/sli/index.html|sllib] and [http://www.ir.isas.jaxa.jp/~cyamauch/sli/index.html|sfitsio] to be installed.
 These libraries can be installed via Homebrew, and
 execute the following if you are missing these nice
 libraries.
 <pre>
-cd /usr/local/Library/Formula
-wget --no-check-certificate https://galaxy.astro.isas.jaxa.jp/%7Eyuasa/documents/20130513/sllib.rb
-wget --no-check-certificate https://galaxy.astro.isas.jaxa.jp/%7Eyuasa/documents/20130513/sfitsio.rb
+brew tap yuasatakayuki/hxisgd
 brew install sfitsio
 </pre>
 </li>
