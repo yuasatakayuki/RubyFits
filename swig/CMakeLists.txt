@@ -62,9 +62,17 @@ message("-- RUBY_HDR_DIR = ${RUBY_HDR_DIR}")
 set(RUBY_LINK_FLAGS " ")
 find_path(RUBY_CONFIG_FILE_DIR
   NAMES ruby/config.h
-  PATHS ${RUBY_HDR_DIR}/*
+  PATHS ${RUBY_HDR_DIR}/* /usr/include
   NO_DEFAULT_PATH
 )
+
+
+find_path(RUBY_LIBRARY
+  NAMES socket.${sharedlib_SUFFIX}
+  PATHS /usr/lib/ruby /usr/lib64/ruby
+  NO_DEFAULT_PATH
+)
+
 if(${RUBY_VERSION} VERSION_GREATER 1.9.0)
   set(RUBY_INCLUDE_DIRS ${RUBY_HDR_DIR} ${RUBY_CONFIG_FILE_DIR})
   set(RUBY_LIBRARY "")
